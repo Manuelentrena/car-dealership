@@ -1,25 +1,31 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 
+export type Car = {
+  id: string;
+  brand: string;
+  model: string;
+};
 @Injectable()
 export class CarsService {
-  private cars = [
+  private cars: Car[] = [
     {
-      id: 0,
+      id: randomUUID(),
       brand: 'Honda',
       model: 'Torolla',
     },
     {
-      id: 1,
+      id: randomUUID(),
       brand: 'Seat',
       model: 'panda',
     },
     {
-      id: 2,
+      id: randomUUID(),
       brand: 'Hunday',
       model: 'Accent',
     },
     {
-      id: 3,
+      id: randomUUID(),
       brand: 'BMW',
       model: 'Leopard',
     },
@@ -29,7 +35,7 @@ export class CarsService {
     return this.cars;
   }
 
-  getOneById(id: number) {
+  getOneById(id: string) {
     const car = this.cars.find((car) => car.id === id);
 
     if (!car) {
@@ -37,5 +43,14 @@ export class CarsService {
     }
 
     return car;
+  }
+
+  createOne(car: Omit<Car, 'id'>) {
+    const newCar: Car = {
+      id: randomUUID(), // Genera el UUID sin instalar librerías externas
+      ...car,
+    };
+    this.cars.push(newCar);
+    return { message: 'Car created', car };
   }
 }
