@@ -29,7 +29,7 @@ export class CarsService {
     return this.cars;
   }
 
-  getOneById(id: string) {
-    return this.cars.find((car) => car.id === Number(id));
+  getOneById(id: number) {
+    return this.cars.find((car) => car.id === id);
   }
 }
