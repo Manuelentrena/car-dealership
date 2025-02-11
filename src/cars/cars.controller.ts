@@ -7,7 +7,7 @@ export class CarsController {
 
   @Get()
   getAllCars() {
-    return this.carsService.getAll();
+    return this.carsService.index();
   }
 
   @Get(':id')

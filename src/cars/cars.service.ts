@@ -25,11 +25,11 @@ export class CarsService {
     },
   ];
 
-  getAll() {
+  index() {
     return this.cars;
   }
 
   getOneById(id: string) {
-    return this.cars[id];
+    return this.cars.find((car) => car.id === Number(id));
   }
 }
