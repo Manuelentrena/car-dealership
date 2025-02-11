@@ -1,11 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
+import { Car } from './types/car.types';
 
-export type Car = {
-  id: string;
-  brand: string;
-  model: string;
-};
 @Injectable()
 export class CarsService {
   private cars: Car[] = [
