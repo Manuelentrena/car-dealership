@@ -61,6 +61,10 @@ export class CarsService {
       return car;
     });
 
+    if (!newCar) {
+      throw new NotFoundException(`Car with ${updateCar.id} not found`);
+    }
+
     return { message: 'Car updated', car: newCar };
   }
 
