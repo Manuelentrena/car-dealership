@@ -49,4 +49,18 @@ export class CarsService {
     this.cars.push(newCar);
     return { message: 'Car created', car };
   }
+
+  updateOne(updateCar: Car) {
+    let newCar: Car | undefined;
+
+    this.cars = this.cars.map((car) => {
+      if (car.id === updateCar.id) {
+        newCar = { ...car, ...updateCar };
+        return newCar;
+      }
+      return car;
+    });
+
+    return { message: 'Car updated', car: newCar };
+  }
 }
