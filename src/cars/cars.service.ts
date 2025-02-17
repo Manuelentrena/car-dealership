@@ -47,7 +47,7 @@ export class CarsService {
       ...car,
     };
     this.cars.push(newCar);
-    return { message: 'Car created', car };
+    return { message: 'Car created', newCar };
   }
 
   updateOne(updateCar: Car) {
