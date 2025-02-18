@@ -51,19 +51,11 @@ export class CarsService {
   }
 
   updateOne(updateCar: Car) {
-    let newCar: Car | undefined;
+    this.cars = this.cars.map((car) =>
+      car.id === updateCar.id ? { ...car, ...updateCar } : car,
+    );
 
-    this.cars = this.cars.map((car) => {
-      if (car.id === updateCar.id) {
-        newCar = { ...car, ...updateCar };
-        return newCar;
-      }
-      return car;
-    });
-
-    if (!newCar) {
-      throw new NotFoundException(`Car with ${updateCar.id} not found`);
-    }
+    const newCar = this.getOneById(updateCar.id);
 
     return { message: 'Car updated', car: newCar };
   }
