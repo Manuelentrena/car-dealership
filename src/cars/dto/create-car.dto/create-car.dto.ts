@@ -3,9 +3,9 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class CreateCarDto {
   @IsString()
   @IsNotEmpty()
-  brand: string;
+  readonly brand: string;
 
   @IsString()
   @IsNotEmpty()
-  model: string;
+  readonly model: string;
 }
