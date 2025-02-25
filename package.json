@@ -21,12 +21,14 @@
   },
   "dependencies": {
     "@nestjs/common": "^11.0.10",
+    "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.10",
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^11.0.10",
     "@nestjs/serve-static": "^5.0.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "dotenv": "^16.4.7",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1"
   },

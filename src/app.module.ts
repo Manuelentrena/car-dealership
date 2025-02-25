@@ -4,11 +4,15 @@ import { BrandsModule } from './brands/brands.module';
 import { SeedModule } from './seed/seed.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
+    }),
+    ConfigModule.forRoot({
+      isGlobal: true,
     }),
     CarsModule,
     BrandsModule,
