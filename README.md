@@ -6,7 +6,7 @@
 
 Populate DB
 ```
-http://localhost:3000/api/seed
+http://localhost:{NEST_PORT}/api/seed
 ```
 
 Run DB
