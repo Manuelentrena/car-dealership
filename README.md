@@ -6,5 +6,15 @@
 
 Populate DB
 ```
-http://localhost:3000/seed
+http://localhost:3000/api/seed
+```
+
+Run DB
+```
+docker-compose up -d
+```
+
+Open Mongo express
+```
+http://localhost:{MONGO_EXPRESS_PORT}
 ```
