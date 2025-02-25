@@ -4,28 +4,7 @@ import { Car } from './types/car.types';
 
 @Injectable()
 export class CarsService {
-  private cars: Car[] = [
-    {
-      id: randomUUID(),
-      brand: 'Honda',
-      model: 'Torolla',
-    },
-    {
-      id: randomUUID(),
-      brand: 'Seat',
-      model: 'panda',
-    },
-    {
-      id: randomUUID(),
-      brand: 'Hunday',
-      model: 'Accent',
-    },
-    {
-      id: randomUUID(),
-      brand: 'BMW',
-      model: 'Leopard',
-    },
-  ];
+  private cars: Car[] = [];
 
   index() {
     return this.cars;
@@ -70,5 +49,9 @@ export class CarsService {
     this.cars = this.cars.filter((car) => car.id !== id);
 
     return { message: 'Car deleted', car: deleteCar };
+  }
+
+  populatedCars(cars: Car[]) {
+    this.cars = cars;
   }
 }

@@ -6,23 +6,7 @@ import { randomUUID } from 'crypto';
 
 @Injectable()
 export class BrandsService {
-  private brands: Brand[] = [
-    {
-      id: randomUUID(),
-      name: 'seat',
-      createdAt: new Date().getTime(),
-    },
-    {
-      id: randomUUID(),
-      name: 'hunday',
-      createdAt: new Date().getTime(),
-    },
-    {
-      id: randomUUID(),
-      name: 'tesla',
-      createdAt: new Date().getTime(),
-    },
-  ];
+  private brands: Brand[] = [];
 
   create(createBrandDto: CreateBrandDto) {
     const newBrand: Brand = {
@@ -70,5 +54,9 @@ export class BrandsService {
     this.brands = this.brands.filter((brand) => brand.id !== id);
 
     return { message: 'Brand deleted', brand: deleteBrand };
+  }
+
+  populatedBrands(brands: Brand[]) {
+    this.brands = brands;
   }
 }
