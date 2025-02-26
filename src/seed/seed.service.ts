@@ -12,7 +12,7 @@ export class SeedService {
 
   runSeed() {
     this.brandsService.populatedBrands(brands);
-    this.carsService.populatedCars(cars);
+    this.carsService.populateCars(cars);
     return 'Seeding completed successfully! 🚀';
   }
 }
