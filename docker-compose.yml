@@ -10,6 +10,8 @@ services:
       - '${MONGO_PORT}:27017'
     volumes:
       - mongo-data:/data/db
+    networks:
+      - app-network
 
   mongo-express:
     image: mongo-express
@@ -23,6 +25,12 @@ services:
       ME_CONFIG_MONGODB_URL: mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongodb:27017/
       ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_ROOT_USERNAME}
       ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    networks:
+      - app-network
 
+networks:
+  app-network:
+    driver: bridge
+    
 volumes:
   mongo-data:

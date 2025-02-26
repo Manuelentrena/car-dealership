@@ -10,9 +10,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 @Module({
   imports: [
     MongooseModule.forRootAsync({
-      useFactory: async (configService: ConfigService) => ({
-        uri: `mongodb://localhost:${configService.get<string>('MONGO_PORT', '27017')}/car_leadership`,
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const uri = `mongodb://${configService.get<string>('MONGO_ROOT_USERNAME')}:${configService.get<string>('MONGO_ROOT_PASSWORD')}@${configService.get<string>('MONGO_HOST')}:${configService.get<string>('MONGO_PORT', '27017')}/car_leadership?authSource=admin`;
+
+        // Imprimir la URI en consola
+        console.log('MongoDB URI:', uri);
+
+        return { uri };
+      },
       inject: [ConfigService],
     }),
     ServeStaticModule.forRoot({
