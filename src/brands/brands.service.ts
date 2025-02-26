@@ -1,62 +1,98 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateBrandDto } from './dto/create-brand.dto';
-import { UpdateBrandDto } from './dto/update-brand.dto';
-import { Brand } from './entities/brand.entity';
-import { randomUUID } from 'crypto';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Brand, BrandDocument } from './schema/brand.schema';
+import { Model } from 'mongoose';
+import { CreateBrandDto, UpdateBrandDto } from './dto';
 
 @Injectable()
 export class BrandsService {
-  private brands: Brand[] = [];
+  constructor(
+    @InjectModel(Brand.name) private brandModel: Model<BrandDocument>,
+  ) {}
 
-  create(createBrandDto: CreateBrandDto) {
-    const newBrand: Brand = {
-      id: randomUUID(),
-      ...createBrandDto,
-      createdAt: new Date().getTime(),
-    };
-    this.brands.push(newBrand);
-    return { message: 'Brand created', newBrand };
+  async findAll(): Promise<Brand[]> {
+    return this.brandModel.find().exec();
   }
 
-  findAll() {
-    return this.brands;
-  }
-
-  findOne(id: string) {
-    const brand = this.brands.find((brand) => brand.id === id);
+  async findOne(id: string): Promise<Brand> {
+    const brand = await this.brandModel.findById(id).exec();
 
     if (!brand) {
-      throw new NotFoundException(`Brand with ${id} not found`);
+      throw new NotFoundException(`Brand with id ${id} not found`);
     }
 
     return brand;
   }
 
-  update(id: string, updateBrandDto: UpdateBrandDto) {
-    this.brands = this.brands.map((brand) =>
-      brand.id === id
-        ? { ...brand, ...updateBrandDto, updatedAt: new Date().getTime() }
-        : brand,
-    );
+  async create(
+    createBrandDto: CreateBrandDto,
+  ): Promise<{ message: string; newBrand: Brand }> {
+    const existingBrand = await this.brandModel
+      .findOne({
+        name: createBrandDto.name,
+      })
+      .exec();
 
-    const newBrand = this.findOne(id);
+    if (existingBrand) {
+      throw new ConflictException('A brand with this name already exists.');
+    }
 
-    return { message: 'Brand updated', brand: newBrand };
+    const newBrand = new this.brandModel(createBrandDto);
+    await newBrand.save();
+
+    return {
+      message: 'Brand created successfully',
+      newBrand,
+    };
   }
 
-  remove(id: string) {
-    const deleteBrand = this.brands.find((brand) => brand.id === id);
+  async update(
+    id: string,
+    updateBrandDto: UpdateBrandDto,
+  ): Promise<{ message: string; brand: Brand }> {
+    const updatedBrand = await this.brandModel
+      .findByIdAndUpdate(id, updateBrandDto, {
+        new: true, // Devuelve el documento actualizado
+        runValidators: true, // Ejecuta las validaciones del esquema
+      })
+      .exec();
 
-    if (!deleteBrand) {
+    if (!updatedBrand) {
+      throw new NotFoundException(`Brand with id ${id} not found`);
+    }
+
+    return {
+      message: 'Brand updated successfully',
+      brand: updatedBrand,
+    };
+  }
+
+  async delete(id: string): Promise<{ message: string; brand: Brand }> {
+    const deletedBrand = await this.brandModel.findByIdAndDelete(id).exec();
+
+    if (!deletedBrand) {
       throw new NotFoundException(`Brand with ID ${id} not found`);
     }
 
-    this.brands = this.brands.filter((brand) => brand.id !== id);
-
-    return { message: 'Brand deleted', brand: deleteBrand };
+    return {
+      message: 'Brand deleted successfully',
+      brand: deletedBrand,
+    };
   }
 
-  populatedBrands(brands: Brand[]) {
-    this.brands = brands;
+  async populateBrands(
+    brands: Brand[],
+  ): Promise<{ message: string; brands: Brand[] }> {
+    await this.brandModel.deleteMany({});
+    const createdBrands = await this.brandModel.insertMany(brands);
+
+    return {
+      message: 'Brands populated successfully',
+      brands: createdBrands,
+    };
   }
 }
