@@ -11,7 +11,7 @@ export class SeedService {
   ) {}
 
   runSeed() {
-    this.brandsService.populatedBrands(brands);
+    this.brandsService.populateBrands(brands);
     this.carsService.populateCars(cars);
     return 'Seeding completed successfully! 🚀';
   }

@@ -79,6 +79,7 @@ export class CarsService {
   }
 
   async populateCars(cars: Car[]): Promise<{ message: string; cars: Car[] }> {
+    await this.carModel.deleteMany({});
     const createdCars = await this.carModel.insertMany(cars);
 
     return {
