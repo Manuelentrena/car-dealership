@@ -86,7 +86,7 @@ export class BrandsService {
 
   async populateBrands(
     brands: Brand[],
-  ): Promise<{ message: string; brands: Brand[] }> {
+  ): Promise<{ message: string; brands: BrandDocument[] }> {
     await this.brandModel.deleteMany({});
     const createdBrands = await this.brandModel.insertMany(brands);
 

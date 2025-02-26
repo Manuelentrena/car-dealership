@@ -5,7 +5,7 @@ export type CarDocument = Car & Document;
 
 @Schema()
 export class Car {
-  @Prop({ required: true, unique: true, index: true })
+  @Prop({ required: true, ref: 'Brand', index: true })
   brand: string;
 
   @Prop({ required: true, unique: true, index: true })

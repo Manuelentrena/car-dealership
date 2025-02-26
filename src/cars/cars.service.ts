@@ -13,11 +13,11 @@ export class CarsService {
   constructor(@InjectModel(Car.name) private carModel: Model<CarDocument>) {}
 
   async findAll(): Promise<Car[]> {
-    return this.carModel.find().exec();
+    return this.carModel.find().populate('brand').exec();
   }
 
   async findOne(id: string): Promise<Car> {
-    const car = await this.carModel.findById(id).exec();
+    const car = await this.carModel.findById(id).populate('brand').exec();
 
     if (!car) {
       throw new NotFoundException(`🚗 Car with id ${id} not found`);
