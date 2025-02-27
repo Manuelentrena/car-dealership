@@ -11,9 +11,6 @@ import { ModelSchema } from './schema/model.schema';
   ],
   controllers: [ModelController],
   providers: [ModelService],
-  exports: [
-    ModelService,
-    MongooseModule.forFeature([{ name: Model.name, schema: ModelSchema }]),
-  ],
+  exports: [ModelService, MongooseModule],
 })
 export class ModelModule {}
