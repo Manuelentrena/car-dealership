@@ -4,20 +4,29 @@ import { Car, CarDocument } from './schema/car.schema';
 import { Model } from 'mongoose';
 import { CreateCarDto, UpdateCarDto } from './dto';
 import { Brand, BrandDocument } from 'src/brands/schema/brand.schema';
+import {
+  ModelDocument,
+  Model as ModelSchema,
+} from 'src/models/schema/model.schema';
 
 @Injectable()
 export class CarsService {
   constructor(
     @InjectModel(Car.name) private carModel: Model<CarDocument>,
     @InjectModel(Brand.name) private brandModel: Model<BrandDocument>,
+    @InjectModel(ModelSchema.name) private modelModel: Model<ModelDocument>,
   ) {}
 
   async findAll(): Promise<Car[]> {
-    return this.carModel.find().populate('brand').exec();
+    return this.carModel.find().populate('brand').populate('model').exec();
   }
 
   async findOne(id: string): Promise<Car> {
-    const car = await this.carModel.findById(id).populate('brand').exec();
+    const car = await this.carModel
+      .findById(id)
+      .populate('brand')
+      .populate('model')
+      .exec();
 
     if (!car) {
       throw new NotFoundException(`🚗 Car with id ${id} not found`);
@@ -29,6 +38,14 @@ export class CarsService {
   async create(
     createCarDto: CreateCarDto,
   ): Promise<{ message: string; newCar: Car }> {
+    const modelExists = await this.modelModel.findById(createCarDto.model);
+
+    if (!modelExists) {
+      throw new NotFoundException(
+        `Model with ID ${createCarDto.model} not found`,
+      );
+    }
+
     const brandExists = await this.brandModel.findById(createCarDto.brand);
 
     if (!brandExists) {
@@ -43,6 +60,7 @@ export class CarsService {
     });
     await newCar.save();
     await newCar.populate('brand');
+    await newCar.populate('model');
 
     return {
       message: '🚗 Car created successfully',
@@ -68,6 +86,7 @@ export class CarsService {
     }
 
     await updatedCar.populate('brand');
+    await updatedCar.populate('model');
 
     return {
       message: '🚗 Car updated successfully',
@@ -83,20 +102,11 @@ export class CarsService {
     }
 
     await deletedCar.populate('brand');
+    await deletedCar.populate('model');
 
     return {
       message: '🚗 Car deleted successfully',
       car: deletedCar,
-    };
-  }
-
-  async populateCars(cars: Car[]): Promise<{ message: string; cars: Car[] }> {
-    await this.carModel.deleteMany({});
-    const createdCars = await this.carModel.insertMany(cars);
-
-    return {
-      message: '🚗 Cars populated successfully',
-      cars: createdCars,
     };
   }
 }
