@@ -7,6 +7,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Brand, BrandDocument } from './schema/brand.schema';
 import { Model } from 'mongoose';
 import { CreateBrandDto, UpdateBrandDto } from './dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationResponse } from 'src/common/interface/pagination.interface';
 
 @Injectable()
 export class BrandsService {
@@ -14,8 +16,21 @@ export class BrandsService {
     @InjectModel(Brand.name) private brandModel: Model<BrandDocument>,
   ) {}
 
-  async findAll(): Promise<Brand[]> {
-    return this.brandModel.find().exec();
+  async findAll(
+    paginationDto: PaginationDto,
+  ): Promise<PaginationResponse<Brand>> {
+    const { page, limit } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const brands = await this.brandModel.find().skip(skip).limit(limit).exec();
+    const total = await this.brandModel.countDocuments().exec();
+
+    return {
+      data: brands,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string): Promise<Brand> {
