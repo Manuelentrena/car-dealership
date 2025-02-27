@@ -19,7 +19,7 @@ export class BrandsService {
   async findAll(
     paginationDto: PaginationDto,
   ): Promise<PaginationResponse<Brand>> {
-    const { page, limit } = paginationDto;
+    const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
 
     const brands = await this.brandModel.find().skip(skip).limit(limit).exec();

@@ -26,7 +26,7 @@ export class CarsService {
   async findAll(
     paginationDto: PaginationDto,
   ): Promise<PaginationResponse<Car>> {
-    const { page, limit } = paginationDto;
+    const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
 
     const cars = await this.carModel

@@ -21,7 +21,7 @@ export class ModelService {
   async findAll(
     paginationDto: PaginationDto,
   ): Promise<PaginationResponse<ModelSchema>> {
-    const { page, limit } = paginationDto;
+    const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
 
     const models = await this.modelModel.find().skip(skip).limit(limit).exec();
