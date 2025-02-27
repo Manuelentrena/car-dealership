@@ -10,6 +10,12 @@ export class Car {
 
   @Prop({ required: true, unique: true, index: true })
   model: string;
+
+  @Prop({ required: true, index: true })
+  createdAt: number;
+
+  @Prop({ index: true })
+  updatedAt: number;
 }
 
 // Creación del esquema

@@ -12,6 +12,9 @@ import { BrandsModule } from 'src/brands/brands.module';
   ],
   controllers: [CarsController],
   providers: [CarsService],
-  exports: [CarsService],
+  exports: [
+    CarsService,
+    MongooseModule.forFeature([{ name: Car.name, schema: CarSchema }]),
+  ],
 })
 export class CarsModule {}

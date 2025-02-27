@@ -37,7 +37,10 @@ export class CarsService {
       );
     }
 
-    const newCar = new this.carModel(createCarDto);
+    const newCar = new this.carModel({
+      ...createCarDto,
+      createdAt: new Date().getTime(),
+    });
     await newCar.save();
     await newCar.populate('brand');
 
@@ -51,10 +54,14 @@ export class CarsService {
     id: string,
     updateCarDto: UpdateCarDto,
   ): Promise<{ message: string; car: Car }> {
-    const updatedCar = await this.carModel.findByIdAndUpdate(id, updateCarDto, {
-      new: true, // Devuelve el coche actualizado
-      runValidators: true, // Ejecuta validaciones definidas en el esquema
-    });
+    const updatedCar = await this.carModel.findByIdAndUpdate(
+      id,
+      { ...updateCarDto, updatedAt: new Date().getTime() },
+      {
+        new: true, // Devuelve el coche actualizado
+        runValidators: true, // Ejecuta validaciones definidas en el esquema
+      },
+    );
 
     if (!updatedCar) {
       throw new NotFoundException(`🚗 Car with id ${id} not found`);

@@ -1,33 +1,50 @@
 import { Injectable } from '@nestjs/common';
-import { BrandsService } from 'src/brands/brands.service';
-import { CarsService } from 'src/cars/cars.service';
-import { cars, brands } from './data';
+import { InjectModel } from '@nestjs/mongoose';
+import { Car, CarDocument } from 'src/cars/schema/car.schema';
+import { Brand, BrandDocument } from 'src/brands/schema/brand.schema';
+import { Model } from 'mongoose';
+import { cars } from './data';
 
 @Injectable()
 export class SeedService {
   constructor(
-    private readonly carsService: CarsService,
-    private readonly brandsService: BrandsService,
+    @InjectModel(Car.name) private readonly carModel: Model<CarDocument>,
+    @InjectModel(Brand.name) private readonly brandModel: Model<BrandDocument>,
   ) {}
 
   async runSeed() {
-    const { brands: createdBrands } =
-      await this.brandsService.populateBrands(brands);
+    console.log('Deleting existing data...');
+    await this.carModel.deleteMany({});
+    await this.brandModel.deleteMany({});
+    console.log('Existing data deleted.');
+    for (const car of cars) {
+      let brand = await this.brandModel.findOne({ name: car.brand });
 
-    // Paso 1: Crear un mapa de los nombres de marca a sus ObjectId correspondientes
-    const brandMap = createdBrands.reduce((acc, brand) => {
-      acc[brand.name] = brand._id.toString();
-      return acc;
-    }, {});
+      if (!brand) {
+        brand = new this.brandModel({
+          name: car.brand,
+          createdAt: Date.now(),
+          updatedAt: null,
+        });
+        await brand.save();
+      }
 
-    // Paso 2: Modificar los coches para asignar los ObjectId de las marcas
-    const updatedCars = cars.map((car) => ({
-      ...car,
-      brand: brandMap[car.brand.toString()], // Asignar el ObjectId correspondiente
-    }));
+      const carExists = await this.carModel.findOne({
+        model: car.model,
+        brand: car.brand,
+      });
 
-    // Paso 3: Poblar los coches con las referencias a las marcas
-    await this.carsService.populateCars(updatedCars);
-    return 'Seeding completed successfully! 🚀';
+      if (!carExists) {
+        const newCar = new this.carModel({
+          brand: brand._id,
+          model: car.model,
+          createdAt: Date.now(),
+          updatedAt: null,
+        });
+        await newCar.save();
+      }
+    }
+
+    console.log('Seed data inserted successfully. ');
   }
 }
