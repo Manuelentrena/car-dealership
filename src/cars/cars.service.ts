@@ -39,6 +39,7 @@ export class CarsService {
 
     const newCar = new this.carModel(createCarDto);
     await newCar.save();
+    await newCar.populate('brand');
 
     return {
       message: '🚗 Car created successfully',
@@ -59,6 +60,8 @@ export class CarsService {
       throw new NotFoundException(`🚗 Car with id ${id} not found`);
     }
 
+    await updatedCar.populate('brand');
+
     return {
       message: '🚗 Car updated successfully',
       car: updatedCar,
@@ -71,6 +74,8 @@ export class CarsService {
     if (!deletedCar) {
       throw new NotFoundException(`🚗 Car with ID ${id} not found`);
     }
+
+    await deletedCar.populate('brand');
 
     return {
       message: '🚗 Car deleted successfully',
