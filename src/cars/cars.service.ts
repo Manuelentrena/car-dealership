@@ -1,16 +1,16 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Car, CarDocument } from './schema/car.schema';
 import { Model } from 'mongoose';
 import { CreateCarDto, UpdateCarDto } from './dto';
+import { Brand, BrandDocument } from 'src/brands/schema/brand.schema';
 
 @Injectable()
 export class CarsService {
-  constructor(@InjectModel(Car.name) private carModel: Model<CarDocument>) {}
+  constructor(
+    @InjectModel(Car.name) private carModel: Model<CarDocument>,
+    @InjectModel(Brand.name) private brandModel: Model<BrandDocument>,
+  ) {}
 
   async findAll(): Promise<Car[]> {
     return this.carModel.find().populate('brand').exec();
@@ -29,12 +29,12 @@ export class CarsService {
   async create(
     createCarDto: CreateCarDto,
   ): Promise<{ message: string; newCar: Car }> {
-    const existingCar = await this.carModel.findOne({
-      brand: createCarDto.brand,
-    });
+    const brandExists = await this.brandModel.findById(createCarDto.brand);
 
-    if (existingCar) {
-      throw new ConflictException('A car with this brand already exists.');
+    if (!brandExists) {
+      throw new NotFoundException(
+        `Brand with ID ${createCarDto.brand} not found`,
+      );
     }
 
     const newCar = new this.carModel(createCarDto);
