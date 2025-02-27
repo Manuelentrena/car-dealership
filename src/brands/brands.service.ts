@@ -90,16 +90,4 @@ export class BrandsService {
       brand: deletedBrand,
     };
   }
-
-  async populateBrands(
-    brands: Brand[],
-  ): Promise<{ message: string; brands: BrandDocument[] }> {
-    await this.brandModel.deleteMany({});
-    const createdBrands = await this.brandModel.insertMany(brands);
-
-    return {
-      message: 'Brands populated successfully',
-      brands: createdBrands,
-    };
-  }
 }
