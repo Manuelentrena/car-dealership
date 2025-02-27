@@ -58,10 +58,14 @@ export class CarsService {
       );
     }
 
-    const carExists = await this.carModel.findOne({
-      'brand.name': brandExists.name,
-      'model.name': modelExists.name,
-    });
+    const carExists = await this.carModel
+      .findOne({
+        brand: brandExists._id,
+        model: modelExists._id,
+      })
+      .populate('brand', 'name')
+      .populate('model', 'name')
+      .exec();
 
     if (carExists) {
       throw new ConflictException(
