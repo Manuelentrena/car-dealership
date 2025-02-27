@@ -58,10 +58,14 @@ export class BrandsService {
     updateBrandDto: UpdateBrandDto,
   ): Promise<{ message: string; brand: Brand }> {
     const updatedBrand = await this.brandModel
-      .findByIdAndUpdate(id, updateBrandDto, {
-        new: true, // Devuelve el documento actualizado
-        runValidators: true, // Ejecuta las validaciones del esquema
-      })
+      .findByIdAndUpdate(
+        id,
+        { ...updateBrandDto, updatedAt: new Date().getTime() },
+        {
+          new: true, // Devuelve el documento actualizado
+          runValidators: true, // Ejecuta las validaciones del esquema
+        },
+      )
       .exec();
 
     if (!updatedBrand) {
