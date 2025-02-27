@@ -7,6 +7,7 @@ import { join } from 'path';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CommonModule } from './common/common.module';
+import { ModelModule } from './models/model.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CommonModule } from './common/common.module';
     BrandsModule,
     SeedModule,
     CommonModule,
+    ModelModule,
   ],
   controllers: [],
   providers: [],
