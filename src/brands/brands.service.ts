@@ -41,7 +41,10 @@ export class BrandsService {
       throw new ConflictException('A brand with this name already exists.');
     }
 
-    const newBrand = new this.brandModel(createBrandDto);
+    const newBrand = new this.brandModel({
+      ...createBrandDto,
+      createdAt: new Date().getTime(),
+    });
     await newBrand.save();
 
     return {
