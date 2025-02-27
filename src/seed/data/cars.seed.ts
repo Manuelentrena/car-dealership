@@ -1,6 +1,6 @@
-import { Car } from 'src/cars/schema/car.schema';
+// import { Car } from 'src/cars/schema/car.schema';
 
-export const cars: Car[] = [
+export const cars: any[] = [
   {
     brand: 'Seat',
     model: 'Civic',
