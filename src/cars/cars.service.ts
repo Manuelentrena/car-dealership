@@ -12,6 +12,8 @@ import {
   ModelDocument,
   Model as ModelSchema,
 } from 'src/models/schema/model.schema';
+import { PaginationResponse } from 'src/common/interface/pagination.interface';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class CarsService {
@@ -21,8 +23,28 @@ export class CarsService {
     @InjectModel(ModelSchema.name) private modelModel: Model<ModelDocument>,
   ) {}
 
-  async findAll(): Promise<Car[]> {
-    return this.carModel.find().populate('brand').populate('model').exec();
+  async findAll(
+    paginationDto: PaginationDto,
+  ): Promise<PaginationResponse<Car>> {
+    const { page, limit } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const cars = await this.carModel
+      .find()
+      .populate('brand')
+      .populate('model')
+      .skip(skip)
+      .limit(limit)
+      .exec();
+
+    const total = await this.carModel.countDocuments().exec();
+
+    return {
+      data: cars,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string): Promise<Car> {

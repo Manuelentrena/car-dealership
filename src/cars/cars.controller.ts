@@ -6,18 +6,20 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { CarsService } from './cars.service';
 import { CreateCarDto, UpdateCarDto } from './dto';
 import { ParseMongoIdPipe } from 'src/common/pipe/parse-mongo-id.pipe';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Controller('cars')
 export class CarsController {
   constructor(private readonly carsService: CarsService) {}
 
   @Get()
-  getAllCars() {
-    return this.carsService.findAll();
+  getAllCars(@Query() paginationDto: PaginationDto) {
+    return this.carsService.findAll(paginationDto);
   }
 
   @Get(':id')
