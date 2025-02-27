@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Car, CarDocument } from './schema/car.schema';
 import { Model } from 'mongoose';
@@ -51,6 +55,17 @@ export class CarsService {
     if (!brandExists) {
       throw new NotFoundException(
         `Brand with ID ${createCarDto.brand} not found`,
+      );
+    }
+
+    const carExists = await this.carModel.findOne({
+      'brand.name': brandExists.name,
+      'model.name': modelExists.name,
+    });
+
+    if (carExists) {
+      throw new ConflictException(
+        `A car with brand ${brandExists.name} and model ${modelExists.name} already exists.`,
       );
     }
 
