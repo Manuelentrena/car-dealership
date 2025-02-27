@@ -3,9 +3,13 @@ import { CarsController } from './cars.controller';
 import { CarsService } from './cars.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Car, CarSchema } from './schema/car.schema';
+import { BrandsModule } from 'src/brands/brands.module';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Car.name, schema: CarSchema }])],
+  imports: [
+    BrandsModule,
+    MongooseModule.forFeature([{ name: Car.name, schema: CarSchema }]),
+  ],
   controllers: [CarsController],
   providers: [CarsService],
   exports: [CarsService],
