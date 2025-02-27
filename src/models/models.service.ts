@@ -11,6 +11,7 @@ import { Model as ModelSchema } from './schema/model.schema';
 import { Model } from 'mongoose';
 import { PaginationResponse } from 'src/common/interface/pagination.interface';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PAGINATION_DEFAULTS } from 'src/common/config/pagination.config';
 
 @Injectable()
 export class ModelService {
@@ -21,7 +22,10 @@ export class ModelService {
   async findAll(
     paginationDto: PaginationDto,
   ): Promise<PaginationResponse<ModelSchema>> {
-    const { page = 1, limit = 10 } = paginationDto;
+    const {
+      page = PAGINATION_DEFAULTS.page,
+      limit = PAGINATION_DEFAULTS.limit,
+    } = paginationDto;
     const skip = (page - 1) * limit;
 
     const models = await this.modelModel.find().skip(skip).limit(limit).exec();

@@ -14,6 +14,7 @@ import {
 } from 'src/models/schema/model.schema';
 import { PaginationResponse } from 'src/common/interface/pagination.interface';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PAGINATION_DEFAULTS } from 'src/common/config/pagination.config';
 
 @Injectable()
 export class CarsService {
@@ -26,7 +27,10 @@ export class CarsService {
   async findAll(
     paginationDto: PaginationDto,
   ): Promise<PaginationResponse<Car>> {
-    const { page = 1, limit = 10 } = paginationDto;
+    const {
+      page = PAGINATION_DEFAULTS.page,
+      limit = PAGINATION_DEFAULTS.limit,
+    } = paginationDto;
     const skip = (page - 1) * limit;
 
     const cars = await this.carModel

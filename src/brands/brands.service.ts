@@ -9,6 +9,7 @@ import { Model } from 'mongoose';
 import { CreateBrandDto, UpdateBrandDto } from './dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { PaginationResponse } from 'src/common/interface/pagination.interface';
+import { PAGINATION_DEFAULTS } from 'src/common/config/pagination.config';
 
 @Injectable()
 export class BrandsService {
@@ -19,7 +20,10 @@ export class BrandsService {
   async findAll(
     paginationDto: PaginationDto,
   ): Promise<PaginationResponse<Brand>> {
-    const { page = 1, limit = 10 } = paginationDto;
+    const {
+      page = PAGINATION_DEFAULTS.page,
+      limit = PAGINATION_DEFAULTS.limit,
+    } = paginationDto;
     const skip = (page - 1) * limit;
 
     const brands = await this.brandModel.find().skip(skip).limit(limit).exec();
