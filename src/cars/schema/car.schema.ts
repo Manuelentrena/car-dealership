@@ -8,8 +8,8 @@ export class Car {
   @Prop({ required: true, ref: 'Brand', type: Types.ObjectId, index: true })
   brand: Types.ObjectId;
 
-  @Prop({ required: true, unique: true, index: true })
-  model: string;
+  @Prop({ required: true, ref: 'Model', type: Types.ObjectId, index: true })
+  model: Types.ObjectId;
 
   @Prop({ required: true, index: true })
   createdAt: number;
@@ -20,3 +20,6 @@ export class Car {
 
 // Creación del esquema
 export const CarSchema = SchemaFactory.createForClass(Car);
+
+// Agregar índice compuesto para garantizar la unicidad de brand y model juntos
+CarSchema.index({ brand: 1, model: 1 }, { unique: true });
