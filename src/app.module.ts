@@ -9,12 +9,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CommonModule } from './common/common.module';
 import { ModelModule } from './models/model.module';
 import { EnvConfiguration } from './common/config/env.config';
+import { envValidationSchema } from './common/config/env.validation';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       load: [EnvConfiguration],
       isGlobal: true,
+      validationSchema: envValidationSchema,
     }),
     MongooseModule.forRootAsync({
       useFactory: async (configService: ConfigService) => {
