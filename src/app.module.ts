@@ -8,12 +8,18 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CommonModule } from './common/common.module';
 import { ModelModule } from './models/model.module';
+import { EnvConfiguration } from './common/config/env.config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      load: [EnvConfiguration],
+      isGlobal: true,
+    }),
     MongooseModule.forRootAsync({
       useFactory: async (configService: ConfigService) => {
-        const uri = `mongodb://${configService.get<string>('MONGO_ROOT_USERNAME')}:${configService.get<string>('MONGO_ROOT_PASSWORD')}@${configService.get<string>('MONGO_HOST')}:${configService.get<string>('MONGO_PORT', '27017')}/car_leadership?authSource=admin`;
+        const mongoConfig = configService.get('mongo');
+        const uri = mongoConfig.uri;
 
         // Imprimir la URI en consola
         console.log('MongoDB URI:', uri);
@@ -24,9 +30,6 @@ import { ModelModule } from './models/model.module';
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
-    }),
-    ConfigModule.forRoot({
-      isGlobal: true,
     }),
     CarsModule,
     BrandsModule,

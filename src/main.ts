@@ -7,7 +7,7 @@ async function main() {
   const app = await NestFactory.create(AppModule);
 
   const configService = app.get(ConfigService);
-  const port = configService.get<number>('NEST_PORT', 3000);
+  const port = configService.get<number>('api.port', 3000);
 
   app.useGlobalPipes(
     new ValidationPipe({
