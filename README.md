@@ -25,7 +25,7 @@
 
 ### 🛠️ Levantar la base de datos con Docker  
 ```sh
-docker-compose up -d
+docker-compose -f docker-compose.dev.yml up -d
 ```
 
 Esto iniciará los servicios de **MongoDB** y **Mongo Express** en segundo plano.
