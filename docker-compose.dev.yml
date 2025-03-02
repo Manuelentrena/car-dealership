@@ -27,6 +27,22 @@ services:
       ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_ROOT_PASSWORD}
     networks:
       - app-network
+  nestjs-app:
+    build:
+      context: .
+      dockerfile: docker/dockerfile.dev.yml
+    container_name: nestjs-app
+    restart: always
+    environment:
+      NODE_ENV: development
+    ports:
+      - '${PORT}:${PORT}'
+    volumes:
+      - .:/app
+    networks:
+      - app-network
+    depends_on:
+      - mongodb
 
 networks:
   app-network:
