@@ -34,7 +34,7 @@ Esto iniciará los servicios de **MongoDB** y **Mongo Express** en segundo plano
 
 ### 🔄 Poblar la base de datos  
 ```
-http://localhost:${NEST_PORT}/api/seed
+http://localhost:${PORT}/api/seed
 ```
 
 ---
