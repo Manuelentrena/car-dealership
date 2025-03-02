@@ -1,11 +1,11 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsMongoId } from 'class-validator';
 
 export class UpdateCarDto {
   @IsOptional()
-  @IsString()
+  @IsMongoId()
   readonly brand: string;
 
   @IsOptional()
-  @IsString()
+  @IsMongoId()
   readonly model: string;
 }

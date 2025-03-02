@@ -1,11 +1,11 @@
-import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
+import { IsMongoId, IsNotEmpty } from 'class-validator';
 
 export class CreateCarDto {
   @IsMongoId()
   @IsNotEmpty()
   readonly brand: string;
 
-  @IsString()
+  @IsMongoId()
   @IsNotEmpty()
   readonly model: string;
 }
