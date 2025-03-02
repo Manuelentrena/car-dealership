@@ -16,7 +16,7 @@ export const EnvConfiguration = () => {
       uri: `mongodb://${username}:${password}@${host}:${port}/${database}?authSource=admin`,
     },
     api: {
-      port: parseInt(process.env.NEST_PORT, 10) || 3000,
+      port: parseInt(process.env.PORT, 10) || 3000,
     },
   };
 };

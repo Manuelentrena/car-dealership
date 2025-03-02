@@ -10,5 +10,5 @@ export const envValidationSchema = Joi.object({
   MONGO_EXPRESS_PORT: Joi.number().default(8081),
 
   // API
-  NEST_PORT: Joi.number().default(3000),
+  PORT: Joi.number().default(3000),
 });
