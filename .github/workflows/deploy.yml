@@ -10,6 +10,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Set lowercase owner name repository
+        run: |
+          echo "OWNER_LC=${OWNER,,}" >> ${GITHUB_ENV}
+        env:
+          OWNER: "${{ github.repository_owner }}"
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -18,11 +24,11 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ghcr.io/${{ github.repository_owner  }}/nestjs-app:latest -f docker/dockerfile.prod.yml .
+          docker build -t ghcr.io/${OWNER_LC}/nestjs-app:latest -f docker/dockerfile.prod.yml .
 
       - name: Push Docker image to GitHub Packages
         run: |
-          docker push ghcr.io/${{ github.repository_owner  }}/nestjs-app:latest
+          docker push ghcr.io/${OWNER_LC}/nestjs-app:latest
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@master
@@ -35,7 +41,7 @@ jobs:
             echo "${{ secrets.GH_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
             echo "Pulling the latest image..."
-            docker pull ghcr.io/${{ github.repository_owner  }}/nestjs-app:latest
+            docker pull ghcr.io/${OWNER_LC}/nestjs-app:latest
 
             echo "Stopping and removing the old container..."
             docker compose down nestjs-app
