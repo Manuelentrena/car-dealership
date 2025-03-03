@@ -37,8 +37,6 @@ services:
       NODE_ENV: production
     ports:
       - '${PORT}:${PORT}'
-    volumes:
-      - .:/app
     networks:
       - app-network
     depends_on:
