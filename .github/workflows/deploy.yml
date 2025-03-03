@@ -32,7 +32,7 @@ jobs:
             --build-arg MONGO_EXPRESS_PORT=${{ secrets.MONGO_EXPRESS_PORT }} \
             --build-arg MONGO_DB=${{ secrets.MONGO_DB }} \
             --build-arg PORT=${{ secrets.PORT }} \
-            -t ghcr.io/${OWNER_LC}/car-dealership-nestjs-app:latest \
+            -t ghcr.io/${OWNER_LC}/nestjs-app:latest \
             -f docker/dockerfile.prod.yml .
 
       - name: Push Docker image to GitHub Packages
