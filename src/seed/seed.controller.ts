@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, ForbiddenException, Get } from '@nestjs/common';
 import { SeedService } from './seed.service';
 
 @Controller('seed')
@@ -7,6 +7,12 @@ export class SeedController {
 
   @Get()
   execute() {
-    return this.seedService.runSeed();
+    if (process.env.NODE_ENV === 'development') {
+      console.log('This endpoint only runs in development');
+      return this.seedService.runSeed();
+    }
+    throw new ForbiddenException(
+      'This endpoint is only available in development mode',
+    );
   }
 }

@@ -24,7 +24,9 @@ import { envValidationSchema } from './common/config/env.validation';
         const uri = mongoConfig.uri;
 
         // Imprimir la URI en consola
-        console.log('MongoDB URI:', uri);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('MongoDB URI:', uri);
+        }
 
         return { uri };
       },
