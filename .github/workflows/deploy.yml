@@ -18,11 +18,11 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ghcr.io/${{ github.repository }}/nestjs-app:latest -f docker/dockerfile.prod.yml .
+          docker build -t ghcr.io/${{ github.repository_owner  }}/nestjs-app:latest -f docker/dockerfile.prod.yml .
 
       - name: Push Docker image to GitHub Packages
         run: |
-          docker push ghcr.io/${{ github.repository }}/nestjs-app:latest
+          docker push ghcr.io/${{ github.repository_owner  }}/nestjs-app:latest
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@master
@@ -35,7 +35,7 @@ jobs:
             echo "${{ secrets.GH_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
             echo "Pulling the latest image..."
-            docker pull ghcr.io/${{ github.repository }}/nestjs-app:latest
+            docker pull ghcr.io/${{ github.repository_owner  }}/nestjs-app:latest
 
             echo "Stopping and removing the old container..."
             docker compose down nestjs-app
