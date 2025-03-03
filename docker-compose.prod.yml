@@ -34,7 +34,7 @@ services:
     container_name: nestjs-app
     restart: always
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
     ports:
       - '${PORT}:${PORT}'
     volumes:
