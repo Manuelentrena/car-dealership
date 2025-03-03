@@ -1,19 +1,20 @@
 # Install dependencies only when needed
-FROM node:18-alpine3.15 AS deps
+FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json package-lock.json ./
+RUN npm cache clean --force
 RUN npm ci
 
 # Build the app with cache dependencies
-FROM node:18-alpine3.15 AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
 # Production image, copy all the files and run next
-FROM node:18-alpine3.15 AS runner
+FROM node:20-alpine AS runner
 WORKDIR /var/www/app
 COPY package.json package-lock.json ./
 RUN npm ci --only=production
