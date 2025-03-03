@@ -26,6 +26,7 @@ import { envValidationSchema } from './common/config/env.validation';
         // Imprimir la URI en consola
         if (process.env.NODE_ENV === 'development') {
           console.log('MongoDB URI:', uri);
+          console.log('Enviroment:', process.env.NODE_ENV);
         }
 
         return { uri };
