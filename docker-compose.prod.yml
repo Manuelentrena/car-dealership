@@ -30,7 +30,7 @@ services:
   nestjs-app:
     build:
       context: .
-      dockerfile: docker/dockerfile.prod.yml
+      dockerfile: ghcr.io/${OWNER_LC}/nestjs-app:latest
     container_name: nestjs-app
     restart: always
     environment:
