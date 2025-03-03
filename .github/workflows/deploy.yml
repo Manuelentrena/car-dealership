@@ -1,0 +1,47 @@
+name: Deploy NestJS to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Packages
+        run: echo "${{ secrets.GH_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build Docker image
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/nestjs-app:latest -f docker/dockerfile.prod.yml .
+
+      - name: Push Docker image to GitHub Packages
+        run: |
+          docker push ghcr.io/${{ github.repository }}/nestjs-app:latest
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            echo "Logging into GitHub Packages..."
+            echo "${{ secrets.GH_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            echo "Pulling the latest image..."
+            docker pull ghcr.io/${{ github.repository }}/nestjs-app:latest
+
+            echo "Stopping and removing the old container..."
+            docker compose down nestjs-app
+
+            echo "Starting the new container..."
+            docker compose up -d --force-recreate nestjs-app
+
+            echo "Cleaning up old images..."
+            docker image prune -f
