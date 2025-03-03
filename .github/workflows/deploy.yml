@@ -14,7 +14,7 @@ jobs:
         run: |
           echo "OWNER_LC=${OWNER,,}" >> ${GITHUB_ENV}
         env:
-          OWNER: "${{ github.repository_owner }}"
+          OWNER: '${{ github.repository_owner }}'
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -46,17 +46,19 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            IMAGE="ghcr.io/${OWNER_LC}/nestjs-app:latest"
             echo "Logging into GitHub Packages..."
             echo "${{ secrets.GH_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
             echo "Pulling the latest image..."
-            docker pull ghcr.io/${OWNER_LC}/nestjs-app:latest
+            docker pull $IMAGE
 
-            echo "Stopping and removing the old container..."
-            docker compose down nestjs-app
-
-            echo "Starting the new container..."
-            docker compose up -d --force-recreate nestjs-app
-
+            echo "Stopping and removing the old nestjs-app container..."
+            docker-compose -f docker-compose.prod.yml stop nestjs-app
+            docker-compose -f docker-compose.prod.yml rm -f nestjs-app
+      
+            echo "Starting the new nestjs-app container..."
+            docker-compose -f docker-compose.prod.yml up -d --no-deps --force-recreate nestjs-app
+      
             echo "Cleaning up old images..."
             docker image prune -f
