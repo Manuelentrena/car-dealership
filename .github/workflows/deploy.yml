@@ -55,6 +55,9 @@ jobs:
             echo "Pulling the latest image..."
             docker pull $IMAGE
 
+            echo "Change path of proyect"
+            cd ${{ secrets.VPS_PATH }}
+
             echo "Stopping and removing the old nestjs-app container..."
             docker-compose -f docker-compose.prod.yml stop nestjs-app
             docker-compose -f docker-compose.prod.yml rm -f nestjs-app
