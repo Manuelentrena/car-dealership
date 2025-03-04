@@ -1,6 +1,6 @@
 services:
   mongodb:
-    image: mongo:latest
+    image: mongo:8.0
     container_name: mongodb
     restart: always
     environment:
@@ -28,7 +28,7 @@ services:
     networks:
       - app-network
   nestjs-app:
-    image: ghcr.io/manuelentrena/car-dealership/nestjs-app:latest
+    image: ghcr.io/manuelentrena/car-dealership:latest
     container_name: nestjs-app
     restart: always
     environment:

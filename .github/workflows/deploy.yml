@@ -1,4 +1,4 @@
-name: Deploy NestJS to VPS
+name: Deploy Proyect to VPS
 
 on:
   push:
@@ -10,20 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # - name: Set lowercase owner name repository
-      #   run: |
-      #     echo "OWNER_LC=${OWNER,,}" >> ${GITHUB_ENV}
-      #   env:
-      #     OWNER: '${{ github.repository_owner }}'
-
-      - name: Set lowercase repository name
-        run: |
-          echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
-
-      - name: Debug REPO_LC
-        run: |
-          echo "REPO_LC is: ${{ env.REPO_LC }}"
-
       - name: Checkout code
         uses: actions/checkout@v4
         with:
@@ -62,16 +48,16 @@ jobs:
             --build-arg MONGO_EXPRESS_PORT=${{ secrets.MONGO_EXPRESS_PORT }} \
             --build-arg MONGO_DB=${{ secrets.MONGO_DB }} \
             --build-arg PORT=${{ secrets.PORT }} \
-            -t ghcr.io/${{ env.REPO_LC }}/nestjs-app:$TAG \
-            -t ghcr.io/${{ env.REPO_LC }}/nestjs-app:latest \
+            -t ghcr.io/${{ vars.OWNER }}/${{ vars.REPO }}:$TAG \
+            -t ghcr.io/${{ vars.OWNER }}/${{ vars.REPO }}:latest \
             -f docker/dockerfile.prod.yml .
 
       - name: Push Docker image to GitHub Packages
         env:
           TAG: ${{ steps.version.outputs.version }}
         run: |
-          docker push ghcr.io/${{ env.REPO_LC }}/nestjs-app:$TAG
-          docker push ghcr.io/${{ env.REPO_LC }}/nestjs-app:latest
+          docker push ghcr.io/${{ vars.OWNER }}/${{ vars.REPO }}:$TAG
+          docker push ghcr.io/${{ vars.OWNER }}/${{ vars.REPO }}:latest
 
       - name: Deploy to VPS
         env:
@@ -82,7 +68,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            IMAGE="ghcr.io/${{ env.REPO_LC }}/nestjs-app:latest"
+            IMAGE="ghcr.io/${{ vars.OWNER }}/${{ vars.REPO }}:latest"
             echo "Logging into GitHub Packages..."
             echo "${{ secrets.GH_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
@@ -96,12 +82,12 @@ jobs:
             git fetch origin
             git checkout origin/main -- docker-compose.prod.yml
 
-            echo "Stopping and removing the old nestjs-app container..."
-            docker-compose -f docker-compose.prod.yml stop nestjs-app
-            docker-compose -f docker-compose.prod.yml rm -f nestjs-app
+            echo "Stopping and removing the old ${{ vars.SERVICE_NAME }} container..."
+            docker-compose -f docker-compose.prod.yml stop ${{ vars.SERVICE_NAME }}
+            docker-compose -f docker-compose.prod.yml rm -f ${{ vars.SERVICE_NAME }}
       
-            echo "Starting the new nestjs-app container..."
-            docker-compose -f docker-compose.prod.yml up -d --no-deps --force-recreate nestjs-app
+            echo "Starting the new ${{ vars.SERVICE_NAME }} container..."
+            docker-compose -f docker-compose.prod.yml up -d --no-deps --force-recreate ${{ vars.SERVICE_NAME }}
       
             echo "Cleaning up old images..."
             docker image prune -f
@@ -110,7 +96,7 @@ jobs:
         uses: actions/delete-package-versions@v5
         with:
           owner: ${{ github.repository_owner }}  # Nombre del propietario del repositorio
-          package-name: car-dealership/nestjs-app  # Nombre del paquete (en este caso tu repositorio de Docker)
+          package-name: ${{ vars.REPO }}/${{ vars.SERVICE_NAME }}  # Nombre del paquete (en este caso tu repositorio de Docker)
           package-type: 'container'  # Tipo de paquete, en este caso 'container' para Docker
           token: ${{ secrets.GH_TOKEN }}  # Token de autenticación con permisos de eliminar paquetes
           min-versions-to-keep: 3  # Mantener las 3 últimas versiones
