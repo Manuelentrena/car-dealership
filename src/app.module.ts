@@ -10,6 +10,7 @@ import { CommonModule } from './common/common.module';
 import { ModelModule } from './models/model.module';
 import { EnvConfiguration } from './common/config/env.config';
 import { envValidationSchema } from './common/config/env.validation';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -35,12 +36,14 @@ import { envValidationSchema } from './common/config/env.validation';
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
+      exclude: ['/api*'],
     }),
     CarsModule,
     BrandsModule,
     SeedModule,
     CommonModule,
     ModelModule,
+    HealthModule,
   ],
   controllers: [],
   providers: [],
