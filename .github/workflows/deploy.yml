@@ -41,13 +41,7 @@ jobs:
           TAG: ${{ steps.version.outputs.version }}
         run: |
           docker build --no-cache \
-            --build-arg MONGO_ROOT_USERNAME=${{ secrets.MONGO_ROOT_USERNAME }} \
-            --build-arg MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }} \
-            --build-arg MONGO_PORT=${{ secrets.MONGO_PORT }} \
-            --build-arg MONGO_HOST=${{ secrets.MONGO_HOST }} \
-            --build-arg MONGO_EXPRESS_PORT=${{ secrets.MONGO_EXPRESS_PORT }} \
-            --build-arg MONGO_DB=${{ secrets.MONGO_DB }} \
-            --build-arg PORT=${{ secrets.PORT }} \
+            --env-file .env \
             -t ghcr.io/${{ vars.OWNER }}/${{ vars.REPO }}:$TAG \
             -t ghcr.io/${{ vars.OWNER }}/${{ vars.REPO }}:latest \
             -f docker/dockerfile.prod.yml .
