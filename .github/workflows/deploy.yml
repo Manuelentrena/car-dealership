@@ -44,18 +44,36 @@ jobs:
         run: |
           echo "Generated tags: ${{ steps.meta.outputs.tags }}"
 
-      - name: Build Docker image
-        run: |
-          docker build --no-cache \
-            --build-arg MONGO_ROOT_USERNAME=${{ secrets.MONGO_ROOT_USERNAME }} \
-            --build-arg MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }} \
-            --build-arg MONGO_PORT=${{ secrets.MONGO_PORT }} \
-            --build-arg MONGO_HOST=${{ secrets.MONGO_HOST }} \
-            --build-arg MONGO_EXPRESS_PORT=${{ secrets.MONGO_EXPRESS_PORT }} \
-            --build-arg MONGO_DB=${{ secrets.MONGO_DB }} \
-            --build-arg PORT=${{ secrets.PORT }} \
-            -t ghcr.io/${OWNER_LC}/nestjs-app:latest \
-            -f docker/dockerfile.prod.yml .
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ghcr.io/${OWNER_LC}/nestjs-app:latest,ghcr.io/${OWNER_LC}/nestjs-app:${{ steps.meta.outputs.tags }}
+          file: docker/dockerfile.prod.yml
+          build-args: |
+            MONGO_ROOT_USERNAME=${{ secrets.MONGO_ROOT_USERNAME }}
+            MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}
+            MONGO_PORT=${{ secrets.MONGO_PORT }}
+            MONGO_HOST=${{ secrets.MONGO_HOST }}
+            MONGO_EXPRESS_PORT=${{ secrets.MONGO_EXPRESS_PORT }}
+            MONGO_DB=${{ secrets.MONGO_DB }}
+            PORT=${{ secrets.PORT }}
+
+      # - name: Build Docker image
+      #   run: |
+      #     docker build --no-cache \
+      #       --build-arg MONGO_ROOT_USERNAME=${{ secrets.MONGO_ROOT_USERNAME }} \
+      #       --build-arg MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }} \
+      #       --build-arg MONGO_PORT=${{ secrets.MONGO_PORT }} \
+      #       --build-arg MONGO_HOST=${{ secrets.MONGO_HOST }} \
+      #       --build-arg MONGO_EXPRESS_PORT=${{ secrets.MONGO_EXPRESS_PORT }} \
+      #       --build-arg MONGO_DB=${{ secrets.MONGO_DB }} \
+      #       --build-arg PORT=${{ secrets.PORT }} \
+      #       -t ghcr.io/${OWNER_LC}/nestjs-app:latest \
+      #       -f docker/dockerfile.prod.yml .
 
       - name: Push Docker image to GitHub Packages
         run: |
