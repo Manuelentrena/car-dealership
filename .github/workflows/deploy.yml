@@ -69,6 +69,8 @@ jobs:
             MONGO_EXPRESS_PORT=${{ secrets.MONGO_EXPRESS_PORT }}
             MONGO_DB=${{ secrets.MONGO_DB }}
             PORT=${{ secrets.PORT }}
+          secrets: |
+            GIT_AUTH_TOKEN=${{ secrets.GH_TOKEN }}
 
       # - name: Build Docker image
       #   run: |
