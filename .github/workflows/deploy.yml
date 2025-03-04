@@ -105,3 +105,34 @@ jobs:
       
             echo "Cleaning up old images..."
             docker image prune -f
+
+      - name: Clean up old Docker images in GitHub Packages
+        run: |
+          # Autenticación en GitHub Packages
+          echo "Logging in to GitHub Packages..."
+          echo "${{ secrets.GH_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          echo "Logged in successfully."
+      
+          # Listar las imágenes en el repositorio y obtener los tags
+          echo "Fetching image versions from GitHub Packages..."
+          IMAGE_LIST=$(curl -s -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+            "https://api.github.com/orgs/${{ github.repository_owner }}/packages/container/${{ env.REPO_LC }}/versions" \
+            | jq -r 'sort_by(.created_at) | reverse | .[1:].[] | .id')
+      
+          echo "Found image versions: $IMAGE_LIST"
+      
+          # Mantener solo el tag latest y el penúltimo más reciente
+          IMAGE_IDS_TO_DELETE=$(echo "$IMAGE_LIST" | tail -n +3)
+      
+          echo "Images to be deleted (excluding latest and second latest):"
+          echo "$IMAGE_IDS_TO_DELETE"
+      
+          # Eliminar las versiones antiguas
+          # for IMAGE_ID in $IMAGE_IDS_TO_DELETE; do
+          #   echo "Deleting image with ID: $IMAGE_ID"
+          #   DELETE_RESPONSE=$(curl -s -X DELETE -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+          #     "https://api.github.com/orgs/${{ github.repository_owner }}/packages/container/${{ env.REPO_LC }}/versions/$IMAGE_ID")
+          #   echo "Delete response: $DELETE_RESPONSE"
+          # done
+      
+          # echo "Clean up completed."
