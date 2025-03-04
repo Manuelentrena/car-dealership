@@ -21,24 +21,6 @@ RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
 COPY ./public ./public
 
-# Definir argumentos de entorno para recibir variables desde docker build
-ARG MONGO_ROOT_USERNAME
-ARG MONGO_ROOT_PASSWORD
-ARG MONGO_PORT
-ARG MONGO_HOST
-ARG MONGO_EXPRESS_PORT
-ARG MONGO_DB
-ARG PORT
-
-# Pasar los valores de ARG a ENV para que estén disponibles en el contenedor
-ENV MONGO_ROOT_USERNAME=${MONGO_ROOT_USERNAME}
-ENV MONGO_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
-ENV MONGO_PORT=${MONGO_PORT}
-ENV MONGO_HOST=${MONGO_HOST}
-ENV MONGO_EXPRESS_PORT=${MONGO_EXPRESS_PORT}
-ENV MONGO_DB=${MONGO_DB}
-ENV PORT=${PORT}
-
 # Dar permiso para ejecutar la applicación
 RUN adduser --disabled-password entrenadev
 RUN chown -R entrenadev:entrenadev /var/www/app
