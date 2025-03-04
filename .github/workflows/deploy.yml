@@ -26,6 +26,8 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -37,66 +39,48 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GH_TOKEN }}
       
-      - name: Extract release version
-        id: meta
-        uses: docker/metadata-action@v5
+
+      - name: Get Version
+        uses: PaulHatch/semantic-version@v5.0.3
+        id: version
         with:
-          images: ghcr.io/${{ env.REPO_LC }}
-          tags: |
-            type=sha
-            type=semver,pattern=v{{version}}
-            type=semver,pattern=v{{major}}.{{minor}}
-            type=semver,pattern=v{{major}}
-      
-      - name: Debug extracted tags
+          major_pattern: "major:"
+          minor_pattern: "feat:"
+          search_commit_body: true
+          bump_each_commit: true
+          version_format: "v${major}.${minor}.${patch}"
+
+      - name: Build Docker image
+        env:
+          TAG: ${{ steps.version.outputs.version }}
         run: |
-          echo "Generated tags: ${{ steps.meta.outputs.tags }}"
-
-      - name: Build and push Docker image
-        id: push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          platforms: linux/amd64,linux/arm64
-          tags: ${{ env.REPO_LC }}/nestjs-app:latest,${{ steps.meta.outputs.tags }}
-          file: docker/dockerfile.prod.yml
-          build-args: |
-            MONGO_ROOT_USERNAME=${{ secrets.MONGO_ROOT_USERNAME }}
-            MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }}
-            MONGO_PORT=${{ secrets.MONGO_PORT }}
-            MONGO_HOST=${{ secrets.MONGO_HOST }}
-            MONGO_EXPRESS_PORT=${{ secrets.MONGO_EXPRESS_PORT }}
-            MONGO_DB=${{ secrets.MONGO_DB }}
-            PORT=${{ secrets.PORT }}
-          secrets: |
-            GIT_AUTH_TOKEN=${{ secrets.GH_TOKEN }}
-
-      # - name: Build Docker image
-      #   run: |
-      #     docker build --no-cache \
-      #       --build-arg MONGO_ROOT_USERNAME=${{ secrets.MONGO_ROOT_USERNAME }} \
-      #       --build-arg MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }} \
-      #       --build-arg MONGO_PORT=${{ secrets.MONGO_PORT }} \
-      #       --build-arg MONGO_HOST=${{ secrets.MONGO_HOST }} \
-      #       --build-arg MONGO_EXPRESS_PORT=${{ secrets.MONGO_EXPRESS_PORT }} \
-      #       --build-arg MONGO_DB=${{ secrets.MONGO_DB }} \
-      #       --build-arg PORT=${{ secrets.PORT }} \
-      #       -t ghcr.io/${OWNER_LC}/nestjs-app:latest \
-      #       -f docker/dockerfile.prod.yml .
+          docker build --no-cache \
+            --build-arg MONGO_ROOT_USERNAME=${{ secrets.MONGO_ROOT_USERNAME }} \
+            --build-arg MONGO_ROOT_PASSWORD=${{ secrets.MONGO_ROOT_PASSWORD }} \
+            --build-arg MONGO_PORT=${{ secrets.MONGO_PORT }} \
+            --build-arg MONGO_HOST=${{ secrets.MONGO_HOST }} \
+            --build-arg MONGO_EXPRESS_PORT=${{ secrets.MONGO_EXPRESS_PORT }} \
+            --build-arg MONGO_DB=${{ secrets.MONGO_DB }} \
+            --build-arg PORT=${{ secrets.PORT }} \
+            -t ghcr.io/${{ env.REPO_LC }}/nestjs-app:$TAG \
+            -f docker/dockerfile.prod.yml .
 
       - name: Push Docker image to GitHub Packages
+        env:
+          TAG: ${{ steps.version.outputs.version }}
         run: |
-          docker push ghcr.io/${{ env.REPO_LC }}/nestjs-app:latest
+          docker push ghcr.io/${{ env.REPO_LC }}/nestjs-app:$TAG
 
       - name: Deploy to VPS
+        env:
+          TAG: ${{ steps.version.outputs.version }}
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            IMAGE="ghcr.io/${{ env.REPO_LC }}/nestjs-app:latest"
+            IMAGE="ghcr.io/${{ env.REPO_LC }}/nestjs-app:$TAG"
             echo "Logging into GitHub Packages..."
             echo "${{ secrets.GH_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
