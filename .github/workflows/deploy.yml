@@ -51,7 +51,7 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: ghcr.io/${OWNER_LC}/nestjs-app:latest,ghcr.io/${OWNER_LC}/nestjs-app:${{ steps.meta.outputs.tags }}
+          tags: ${OWNER_LC}/nestjs-app:latest,${OWNER_LC}/nestjs-app:${{ steps.meta.outputs.tags }}
           file: docker/dockerfile.prod.yml
           build-args: |
             MONGO_ROOT_USERNAME=${{ secrets.MONGO_ROOT_USERNAME }}
