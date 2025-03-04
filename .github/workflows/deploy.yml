@@ -96,7 +96,7 @@ jobs:
         uses: actions/delete-package-versions@v5
         with:
           owner: ${{ github.repository_owner }}  # Nombre del propietario del repositorio
-          package-name: ${{ vars.REPO }}/${{ vars.SERVICE_NAME }}  # Nombre del paquete (en este caso tu repositorio de Docker)
+          package-name: ${{ vars.REPO }}  # Nombre del paquete (en este caso tu repositorio de Docker)
           package-type: 'container'  # Tipo de paquete, en este caso 'container' para Docker
           token: ${{ secrets.GH_TOKEN }}  # Token de autenticación con permisos de eliminar paquetes
           min-versions-to-keep: 3  # Mantener las 3 últimas versiones

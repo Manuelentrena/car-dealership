@@ -28,7 +28,7 @@ services:
     networks:
       - app-network
   nestjs-app:
-    image: ghcr.io/manuelentrena/car-dealership:latest
+    image: ghcr.io/manuelentrena/car-leadership:latest   
     container_name: nestjs-app
     restart: always
     environment:
