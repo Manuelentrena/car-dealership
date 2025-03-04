@@ -10,11 +10,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set lowercase owner name repository
+      # - name: Set lowercase owner name repository
+      #   run: |
+      #     echo "OWNER_LC=${OWNER,,}" >> ${GITHUB_ENV}
+      #   env:
+      #     OWNER: '${{ github.repository_owner }}'
+
+      - name: Set lowercase repository name
         run: |
-          echo "OWNER_LC=${OWNER,,}" >> ${GITHUB_ENV}
-        env:
-          OWNER: '${{ github.repository_owner }}'
+          echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
+      - name: Debug OWNER_LC
+        run: |
+          echo "OWNER_LC is: ${{ env.REPO_LC }}"
 
       - name: Checkout code
         uses: actions/checkout@v4
