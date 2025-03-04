@@ -28,9 +28,7 @@ services:
     networks:
       - app-network
   nestjs-app:
-    build:
-      context: .
-      dockerfile: ghcr.io/manuelentrena/nestjs-app:latest
+    image: ghcr.io/manuelentrena/nestjs-app:latest
     container_name: nestjs-app
     restart: always
     environment:
