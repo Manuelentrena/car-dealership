@@ -27,6 +27,7 @@ services:
       ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_ROOT_PASSWORD}
     networks:
       - app-network
+
   nestjs-app:
     build:
       context: .
@@ -43,6 +44,36 @@ services:
       - app-network
     depends_on:
       - mongodb
+      - postgres
+
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - '${DB_PORT}:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - '${PGADMIN_PORT}:80'
+    networks:
+      - app-network
+    depends_on:
+      - postgres
 
 networks:
   app-network:
@@ -50,3 +81,4 @@ networks:
     
 volumes:
   mongo-data:
+  postgres-data:
