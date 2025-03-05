@@ -23,6 +23,11 @@
 
 ## 🚀 Ejecutar la aplicación
 
+### 📦 Instalar dependencias en desarrollo
+```sh
+npm install
+``` 
+
 ### 🛠️ Levantar la base de datos con Docker  
 ```sh
 docker-compose -f docker-compose.dev.yml up -d
