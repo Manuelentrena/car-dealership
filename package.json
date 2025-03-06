@@ -18,10 +18,11 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "migration:generate": "npx ts-node -P ./tsconfig.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate -d ./src/common/config/typeorm.config.ts",
-    "migration:create": "npx ts-node -P ./tsconfig.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:create -d ./src/common/config/typeorm.config.ts",
-    "migration:run": "npx ts-node -P ./tsconfig.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d ./src/common/config/typeorm.config.ts",
-    "migration:revert": "npx ts-node -P ./tsconfig.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d ./src/common/config/typeorm.config.ts"
+    "typeorm": "ts-node ./node_modules/typeorm/cli",
+    "migration:run": "npm run typeorm migration:run -- -d .src/common/config/typeorm.config.ts",
+    "migration:generate": "npm run typeorm -- -d .src/common/config/typeorm.config.ts migration:generate ./database/migrations/$npm_config_name",
+    "migration:create": "npm run typeorm -- migration:create ./database/migrations/$npm_config_name",
+    "migration:revert": "npm run typeorm -- -d .src/common/config/typeorm.config.ts migration:revert"
   },
   "dependencies": {
     "@nestjs/axios": "4.0.0",
@@ -45,7 +46,7 @@
     "typeorm": "0.3.21"
   },
   "devDependencies": {
-    "@nestjs/cli": "10.0.0",
+    "@nestjs/cli": "10.4.9",
     "@nestjs/schematics": "10.0.0",
     "@nestjs/testing": "11.0.10",
     "@types/express": "5.0.0",
