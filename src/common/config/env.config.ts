@@ -15,6 +15,15 @@ export const EnvConfiguration = () => {
       expressPort: parseInt(process.env.MONGO_EXPRESS_PORT, 10) || 8081,
       uri: `mongodb://${username}:${password}@${host}:${port}/${database}?authSource=admin`,
     },
+    postgres: {
+      host: process.env.DB_HOST || 'postgres',
+      port: parseInt(process.env.DB_PORT, 10) || 5432,
+      username: process.env.BD_USER || 'postgres',
+      password: process.env.DB_PASS || 'secret',
+      database: process.env.DB_NAME || 'car_leadership',
+      autoLoadEntities: true,
+      synchronize: false,
+    },
     api: {
       port: parseInt(process.env.PORT, 10) || 3000,
     },

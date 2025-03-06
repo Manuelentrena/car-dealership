@@ -9,6 +9,18 @@ export const envValidationSchema = Joi.object({
   MONGO_DB: Joi.string().default('car_leadership'),
   MONGO_EXPRESS_PORT: Joi.number().default(8081),
 
+  // Base de datos Postgres
+  DB_HOST: Joi.string().required().default('localhost'),
+  DB_PORT: Joi.number().required().default(5432),
+  DB_USER: Joi.string().required(),
+  DB_PASS: Joi.string().required(),
+  DB_NAME: Joi.string().required(),
+
+  // PG Admin
+  PGADMIN_EMAIL: Joi.string().required(),
+  PGADMIN_PASSWORD: Joi.string().required(),
+  PGADMIN_PORT: Joi.number().default(5050),
+
   // API
   PORT: Joi.number().default(3000),
 });

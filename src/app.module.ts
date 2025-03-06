@@ -12,36 +12,20 @@ import { envValidationSchema } from './common/config/env.validation';
 import { HealthModule } from './health/health.module';
 import { ModelModule } from './models/model.module';
 import { SeedModule } from './seed/seed.module';
+import typeormConfiguration from './common/config/typeorm.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [EnvConfiguration],
+      load: [EnvConfiguration, typeormConfiguration],
       isGlobal: true,
       validationSchema: envValidationSchema,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get<string>('postgres.host'),
-        port: configService.get<number>('postgres.port'),
-        username: configService.get<string>('postgres.username'),
-        password: configService.get<string>('postgres.password'),
-        database: configService.get<string>('postgres.database'),
-        autoLoadEntities: configService.get<boolean>(
-          'postgres.autoLoadEntities',
-        ),
-        entities: ['dist/**/*.entity{.ts,.js}'],
-        migrations: [
-          join(__dirname, '..', 'database', 'migrations', '*{.ts,.js}'),
-        ],
-        migrationsTableName: '_migrations',
-        migrationsRun: true,
-        synchronize: configService.get<boolean>('postgres.synchronize'),
-        logging: true,
-      }),
+      useFactory: async (configService: ConfigService) =>
+        configService.get('typeorm'),
     }),
     MongooseModule.forRootAsync({
       useFactory: async (configService: ConfigService) => {
@@ -60,7 +44,10 @@ import { SeedModule } from './seed/seed.module';
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
-      exclude: ['/api*'],
+      exclude: ['/api/{*test}'],
+      serveStaticOptions: {
+        fallthrough: false,
+      },
     }),
     CarsModule,
     BrandsModule,
