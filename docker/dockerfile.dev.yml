@@ -1,7 +1,14 @@
 FROM node:20-alpine AS dev
+# Definir directorio de trabajo
 WORKDIR /app
+# Copiar paquetes
 COPY package.json package-lock.json ./
+# Instalar dependencias
 RUN npm install
+# Copiar archivos
 COPY . .
+# Puerto
 EXPOSE ${PORT}
+USER node
+# Comando por defecto
 CMD ["npm", "run", "start:dev"]
