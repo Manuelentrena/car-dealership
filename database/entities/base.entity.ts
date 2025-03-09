@@ -7,14 +7,14 @@ import {
 
 export class BaseEntity {
   @PrimaryGeneratedColumn('uuid')
-  id!: string;
+  id: string;
 
-  @CreateDateColumn({ type: 'timestamptz' })
-  readonly createdAt!: Date;
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamptz' })
-  readonly updatedAt!: Date;
+  @UpdateDateColumn({ type: 'timestamp', nullable: true })
+  updatedAt: Date;
 
-  @DeleteDateColumn({ type: 'timestamptz' })
-  deletedAt!: Date;
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deletedAt: Date;
 }
