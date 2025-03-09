@@ -8,6 +8,9 @@ import {
   ModelDocument,
   Model as ModelSchema,
 } from 'src/models/schema/model.schema';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Car as CarTable } from '../../database/entities/car.entity';
 
 @Injectable()
 export class SeedService {
@@ -16,6 +19,8 @@ export class SeedService {
     @InjectModel(Brand.name) private readonly brandModel: Model<BrandDocument>,
     @InjectModel(ModelSchema.name)
     private readonly modelModel: Model<ModelDocument>,
+    @InjectRepository(Car)
+    private readonly carRepository: Repository<CarTable>,
   ) {}
 
   async runSeed() {
@@ -64,5 +69,15 @@ export class SeedService {
     }
 
     console.log('Seed data inserted successfully. ');
+  }
+
+  async runSeedInPostgres() {
+    console.log('Deleting existing cars in PostgreSQL...');
+    await this.carRepository.delete({});
+
+    console.log('Inserting new cars in PostgreSQL...');
+    await this.carRepository.save(cars);
+
+    console.log('Seed data inserted successfully in PostgreSQL.');
   }
 }
