@@ -9,7 +9,9 @@ export class SeedController {
   execute() {
     if (process.env.NODE_ENV === 'development') {
       console.log('This endpoint only runs in development');
-      return this.seedService.runSeed();
+      // this.seedService.runSeed();
+      this.seedService.runSeedInPostgres();
+      return 'Seed executed';
     }
     throw new ForbiddenException(
       'This endpoint is only available in development mode',
