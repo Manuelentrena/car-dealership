@@ -88,6 +88,9 @@ jobs:
       
             echo "Starting the new ${{ vars.SERVICE_NAME }} container..."
             docker-compose -f docker-compose.prod.yml up -d --no-deps --force-recreate ${{ vars.SERVICE_NAME }}
+
+            echo "Running database migrations..."
+            docker exec ${{ vars.SERVICE_NAME }} npm run migration:prod
       
             echo "Cleaning up old images..."
             docker image prune -f
