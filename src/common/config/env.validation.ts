@@ -17,8 +17,8 @@ export const envValidationSchema = Joi.object({
   DB_NAME: Joi.string().required(),
 
   // PG Admin
-  PGADMIN_EMAIL: Joi.string().required(),
-  PGADMIN_PASSWORD: Joi.string().required(),
+  PGADMIN_EMAIL: Joi.string().optional(),
+  PGADMIN_PASSWORD: Joi.string().optional(),
   PGADMIN_PORT: Joi.number().default(5050),
 
   // API
