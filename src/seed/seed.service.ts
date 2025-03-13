@@ -19,7 +19,7 @@ export class SeedService {
     @InjectModel(Brand.name) private readonly brandModel: Model<BrandDocument>,
     @InjectModel(ModelSchema.name)
     private readonly modelModel: Model<ModelDocument>,
-    @InjectRepository(Car)
+    @InjectRepository(Auto)
     private readonly autoRepository: Repository<Auto>,
   ) {}
 
