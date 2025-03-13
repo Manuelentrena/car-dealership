@@ -7,7 +7,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
     ports:
-      - '127.0.0.1:${MONGO_PORT}:27017'
+      - '${MONGO_PORT}:27017'
     volumes:
       - mongo-data:/data/db
     networks:
@@ -38,7 +38,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB: ${DB_NAME}
     ports:
-      - '127.0.0.1:${DB_PORT}:5432'
+      - '${DB_PORT}:5432'
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
