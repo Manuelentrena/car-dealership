@@ -12,6 +12,7 @@ import { envValidationSchema } from './common/config/env.validation';
 import { HealthModule } from './health/health.module';
 import { ModelModule } from './models/model.module';
 import { SeedModule } from './seed/seed.module';
+import { AutoModule } from './auto/auto.module';
 import typeormConfiguration from './common/config/typeorm.config';
 
 @Module({
@@ -55,6 +56,7 @@ import typeormConfiguration from './common/config/typeorm.config';
     CommonModule,
     ModelModule,
     HealthModule,
+    AutoModule,
   ],
   controllers: [],
   providers: [],
