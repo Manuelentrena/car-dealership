@@ -7,15 +7,14 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
     ports:
-      - '${MONGO_PORT}:27017'
+      - '127.0.0.1:${MONGO_PORT}:27017'
     volumes:
       - mongo-data:/data/db
     networks:
       - app-network
 
-
   nestjs-app:
-    image: ghcr.io/manuelentrena/car-leadership:latest   
+    image: ghcr.io/manuelentrena/car-leadership:latest
     container_name: nestjs-app
     restart: always
     environment:
@@ -39,17 +38,16 @@ services:
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB: ${DB_NAME}
     ports:
-      - '${DB_PORT}:5432'
+      - '127.0.0.1:${DB_PORT}:5432'
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - app-network
 
-
 networks:
   app-network:
     driver: bridge
-    
+
 volumes:
   mongo-data:
   postgres-data:
