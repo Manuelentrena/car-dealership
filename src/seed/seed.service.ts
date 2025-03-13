@@ -72,10 +72,10 @@ export class SeedService {
   }
 
   async runSeedInPostgres() {
-    console.log('Deleting existing cars in PostgreSQL...');
+    console.log('Deleting existing autos in PostgreSQL...');
     await this.autoRepository.delete({});
 
-    console.log('Inserting new cars in PostgreSQL...');
+    console.log('Inserting new autos in PostgreSQL...');
     await this.autoRepository.save(cars);
 
     console.log('Seed data inserted successfully in PostgreSQL.');
