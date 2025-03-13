@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Car, CarDocument } from 'src/cars/schema/car.schema';
-import { Brand, BrandDocument } from 'src/brands/schema/brand.schema';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Model } from 'mongoose';
-import { cars } from './data';
+import { Brand, BrandDocument } from 'src/brands/schema/brand.schema';
+import { Car, CarDocument } from 'src/cars/schema/car.schema';
 import {
   ModelDocument,
   Model as ModelSchema,
 } from 'src/models/schema/model.schema';
 import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Car as CarTable } from '../../database/entities/car.entity';
+import { Auto } from '../../database/entities/auto.entity';
+import { cars } from './data';
 
 @Injectable()
 export class SeedService {
@@ -20,7 +20,7 @@ export class SeedService {
     @InjectModel(ModelSchema.name)
     private readonly modelModel: Model<ModelDocument>,
     @InjectRepository(Car)
-    private readonly carRepository: Repository<CarTable>,
+    private readonly autoRepository: Repository<Auto>,
   ) {}
 
   async runSeed() {
@@ -73,10 +73,10 @@ export class SeedService {
 
   async runSeedInPostgres() {
     console.log('Deleting existing cars in PostgreSQL...');
-    await this.carRepository.delete({});
+    await this.autoRepository.delete({});
 
     console.log('Inserting new cars in PostgreSQL...');
-    await this.carRepository.save(cars);
+    await this.autoRepository.save(cars);
 
     console.log('Seed data inserted successfully in PostgreSQL.');
   }

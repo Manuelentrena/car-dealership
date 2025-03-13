@@ -1,18 +1,18 @@
 import { Module } from '@nestjs/common';
-import { SeedService } from './seed.service';
-import { SeedController } from './seed.controller';
-import { CarsModule } from 'src/cars/cars.module';
-import { BrandsModule } from 'src/brands/brands.module';
-import { ModelModule } from 'src/models/model.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Car } from 'database/entities/car.entity';
+import { Auto } from 'database/entities/auto.entity';
+import { BrandsModule } from 'src/brands/brands.module';
+import { CarsModule } from 'src/cars/cars.module';
+import { ModelModule } from 'src/models/model.module';
+import { SeedController } from './seed.controller';
+import { SeedService } from './seed.service';
 
 @Module({
   imports: [
     CarsModule,
     BrandsModule,
     ModelModule,
-    TypeOrmModule.forFeature([Car]),
+    TypeOrmModule.forFeature([Auto]),
   ],
   controllers: [SeedController],
   providers: [SeedService],
