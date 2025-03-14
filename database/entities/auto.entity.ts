@@ -1,3 +1,4 @@
+import { generateSlug } from 'src/common/utils/utils';
 import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
 import { BaseEntity } from './base.entity';
 
@@ -23,8 +24,8 @@ export class Auto extends BaseEntity {
   @BeforeUpdate()
   generateSlug() {
     // Generamos el slug basado en los valores de brand, model y year
-    this.slug = `${this.brand.toLowerCase().replace(/\s+/g, '-')}-${this.model
-      .toLowerCase()
-      .replace(/\s+/g, '-')}-${this.year}`;
+    this.slug = `${generateSlug(this.brand)}-${generateSlug(this.model)}-${
+      this.year
+    }`;
   }
 }
