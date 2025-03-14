@@ -41,10 +41,12 @@
     "dotenv": "16.4.7",
     "joi": "17.13.3",
     "mongoose": "8.10.2",
+    "nest-winston": "^1.10.2",
     "pg": "8.13.3",
     "reflect-metadata": "0.2.0",
     "rxjs": "7.8.1",
-    "typeorm": "0.3.21"
+    "typeorm": "0.3.21",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@nestjs/cli": "10.4.9",
