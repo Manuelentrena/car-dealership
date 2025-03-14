@@ -1,6 +1,11 @@
 import { WinstonModule, utilities } from 'nest-winston';
 import * as winston from 'winston';
 
+const logPath =
+  process.env.NODE_ENV === 'production'
+    ? '/var/www/app/logs/error.log'
+    : 'logs/error.log';
+
 const logger = WinstonModule.createLogger({
   transports: [
     new winston.transports.Console({
@@ -10,7 +15,7 @@ const logger = WinstonModule.createLogger({
       ),
     }),
     new winston.transports.File({
-      filename: 'logs/error.log',
+      filename: logPath,
       level: 'error',
     }),
   ],
