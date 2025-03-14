@@ -10,6 +10,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { UUIDOrSlugPipe } from 'src/common/pipe/parse-slug.pipe';
 import { AutoService } from './auto.service';
 import { CreateAutoDto } from './dto/create-auto.dto';
 import { UpdateAutoDto } from './dto/update-auto.dto';
@@ -23,9 +24,9 @@ export class AutoController {
     return this.autoService.findAll(paginationDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.autoService.findOne(id);
+  @Get(':term')
+  findOne(@Param('term', UUIDOrSlugPipe) term: string) {
+    return this.autoService.findOne(term);
   }
 
   @Post()

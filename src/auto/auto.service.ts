@@ -4,10 +4,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { isUUID } from 'class-validator';
 import { Auto } from 'database/entities/auto.entity';
 import { PAGINATION_DEFAULTS } from 'src/common/config/pagination.config';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { PaginationResponse } from 'src/common/interface/pagination.interface';
+import { isSLUG } from 'src/common/utils/utils';
 import { EntityNotFoundError, Repository } from 'typeorm';
 import { CreateAutoDto } from './dto/create-auto.dto';
 import { UpdateAutoDto } from './dto/update-auto.dto';
@@ -40,11 +42,19 @@ export class AutoService {
     };
   }
 
-  async findOne(id: string): Promise<Auto> {
-    const auto = await this.autoRepository.findOneBy({ id });
+  async findOne(term: string): Promise<Auto> {
+    let auto: Auto = null;
+
+    if (isUUID(term)) {
+      auto = await this.autoRepository.findOneBy({ id: term });
+    }
+
+    if (!auto && isSLUG(term)) {
+      auto = await this.autoRepository.findOneBy({ slug: term });
+    }
 
     if (!auto) {
-      throw new NotFoundException(`🚗 Auto with id ${id} not found`);
+      throw new NotFoundException(`🚗 Auto with term ${term} not found`);
     }
 
     return auto;
