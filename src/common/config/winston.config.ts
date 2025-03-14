@@ -3,7 +3,7 @@ import * as winston from 'winston';
 
 const logPath =
   process.env.NODE_ENV === 'production'
-    ? '/var/www/app/logs/error.log'
+    ? '/var/www/app/logs/error.log' // Winston lo interpretará como una ruta relativa dentro de /var/www/app/dist/ (porque ahí se ejecuta el código).
     : 'logs/error.log';
 
 const logger = WinstonModule.createLogger({

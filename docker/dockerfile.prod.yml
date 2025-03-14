@@ -22,11 +22,12 @@ COPY --from=builder /app/dist ./dist
 COPY ./public ./public
 RUN mkdir -p /var/www/app/logs
 
-# Dar permiso para ejecutar la applicación
+# Crear el usuario sin contraseña
 RUN adduser --disabled-password entrenadev
 RUN chown -R entrenadev:entrenadev /var/www/app
+RUN chown -R entrenadev:entrenadev /var/www/app/logs
 USER entrenadev
 
 EXPOSE ${PORT}
 
-CMD [ "node","dist/src/main" ]
+CMD [ "node", "dist/src/main" ]
