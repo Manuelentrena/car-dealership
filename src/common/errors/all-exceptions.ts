@@ -15,18 +15,25 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const status =
       exception instanceof HttpException ? exception.getStatus() : 500;
 
-    const errorResponse = {
-      statusCode: status,
-      message:
-        exception instanceof HttpException
-          ? exception.getResponse()
-          : 'Internal server error',
-      timestamp: new Date().toISOString(),
-    };
+    const errorMessage =
+      exception instanceof HttpException
+        ? exception.getResponse()
+        : 'Internal server error';
+
+    // Extraer solo el mensaje de error sin el JSON completo
+    const errorText =
+      typeof errorMessage === 'object' && 'message' in errorMessage
+        ? errorMessage.message
+        : errorMessage;
 
     // 🔥 Loguear el error con el Logger de NestJS
-    logger.error(`HTTP ${status} Error: ${JSON.stringify(errorResponse)}`);
+    // 🔥 Log más limpio
+    logger.error(`HTTP ${status} | ${new Date().toISOString()} | ${errorText}`);
 
-    response.status(status).json(errorResponse);
+    response.status(status).json({
+      statusCode: status,
+      message: errorText,
+      timestamp: new Date().toISOString(),
+    });
   }
 }
