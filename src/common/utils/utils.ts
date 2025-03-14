@@ -8,3 +8,7 @@ export const generateSlug = (text: string) => {
     replacement: '-', // Reemplaza los espacios por guiones
   });
 };
+
+export const isSLUG = (text: string): boolean => {
+  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(text);
+};
