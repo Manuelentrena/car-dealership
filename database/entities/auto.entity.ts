@@ -19,6 +19,9 @@ export class Auto extends BaseEntity {
   })
   slug: string;
 
+  @Column('text', { nullable: true, array: true, default: [] })
+  features: string[];
+
   // Hook para generar el slug antes de insertar o actualizar
   @BeforeInsert()
   @BeforeUpdate()
