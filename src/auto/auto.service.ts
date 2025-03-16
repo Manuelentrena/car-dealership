@@ -93,16 +93,17 @@ export class AutoService {
     id: string,
     updateAutoDto: UpdateAutoDto,
   ): Promise<{ message: string; auto: Auto }> {
-    const updateResult = await this.autoRepository.update(id, {
+    const auto = await this.autoRepository.preload({
+      id,
       ...updateAutoDto,
       updatedAt: new Date(),
     });
 
-    if (updateResult.affected === 0) {
+    if (!auto) {
       throw new NotFoundException(`🚗 Auto with id ${id} not found`);
     }
 
-    const updatedAuto = await this.autoRepository.findOne({ where: { id } });
+    const updatedAuto = await this.autoRepository.save(auto);
 
     return {
       message: '🚗 Auto updated successfully',
