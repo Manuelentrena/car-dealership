@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateAutoDto {
@@ -12,4 +13,7 @@ export class CreateAutoDto {
   @IsNumber()
   @IsNotEmpty()
   readonly year: number;
+
+  @Exclude()
+  slug?: string;
 }
