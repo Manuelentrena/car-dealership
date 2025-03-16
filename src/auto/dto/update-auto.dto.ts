@@ -1,5 +1,11 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { CreateAutoDto } from './create-auto.dto';
 
 export class UpdateAutoDto extends PartialType(CreateAutoDto) {
@@ -17,4 +23,9 @@ export class UpdateAutoDto extends PartialType(CreateAutoDto) {
   @IsNotEmpty()
   @IsOptional()
   readonly year: number;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  features?: string[];
 }

@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateAutoDto {
   @IsString()
@@ -16,4 +16,8 @@ export class CreateAutoDto {
 
   @Exclude()
   slug?: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  features: string[];
 }
