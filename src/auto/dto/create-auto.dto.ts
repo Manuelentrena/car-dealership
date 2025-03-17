@@ -20,4 +20,8 @@ export class CreateAutoDto {
   @IsArray()
   @IsString({ each: true })
   features: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  images: string[];
 }
