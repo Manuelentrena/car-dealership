@@ -12,7 +12,7 @@ import { PAGINATION_DEFAULTS } from 'src/common/config/pagination.config';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { PaginationResponse } from 'src/common/interface/pagination.interface';
 import { isSLUG } from 'src/common/utils/utils';
-import { EntityNotFoundError, QueryRunner, Repository } from 'typeorm';
+import { QueryRunner, Repository } from 'typeorm';
 import { CreateAutoDto } from './dto/create-auto.dto';
 import { UpdateAutoDto } from './dto/update-auto.dto';
 
@@ -162,22 +162,29 @@ export class AutoService {
   }
 
   async remove(id: string): Promise<{ message: string; auto: Auto }> {
-    try {
-      const deletedAuto = await this.autoRepository.findOneOrFail({
-        where: { id },
-      });
+    const queryRunner =
+      this.autoRepository.manager.connection.createQueryRunner();
+    await queryRunner.startTransaction();
 
-      await this.autoRepository.delete(id);
+    try {
+      const deletedAuto = await this.findOne(id);
+
+      await this.deleteAuto(deletedAuto, queryRunner);
+
+      // Confirmar la transacción
+      await queryRunner.commitTransaction();
 
       return {
         message: '🚗 Auto deleted successfully',
-        auto: deletedAuto,
+        auto: { ...deletedAuto, id } as Auto,
       };
     } catch (error) {
-      if (error instanceof EntityNotFoundError) {
-        throw new NotFoundException(`🚗 Auto with ID ${id} not found`);
-      }
-      throw error;
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException(
+        `Failed to remove auto: ${error.message}`,
+      );
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -230,17 +237,15 @@ export class AutoService {
     return oldAuto as Auto;
   }
 
+  async deleteAuto(auto: Auto, queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.manager.remove(Auto, auto);
+  }
+
   async checkIfAutoExists(createAutoDto: CreateAutoDto): Promise<Auto | null> {
     return await this.autoRepository.findOneBy({
       brand: createAutoDto.brand,
       model: createAutoDto.model,
       year: createAutoDto.year,
     });
-  }
-
-  static removeAutoReferenceFromImages(
-    images: AutoImage[],
-  ): Omit<AutoImage, 'auto'>[] {
-    return images.map(({ auto: _, ...imageWithoutAuto }) => imageWithoutAuto);
   }
 }
