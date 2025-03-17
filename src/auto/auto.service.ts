@@ -1,16 +1,18 @@
 import {
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isUUID } from 'class-validator';
+import { AutoImage } from 'database/entities/auto-image.entity';
 import { Auto } from 'database/entities/auto.entity';
 import { PAGINATION_DEFAULTS } from 'src/common/config/pagination.config';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { PaginationResponse } from 'src/common/interface/pagination.interface';
 import { isSLUG } from 'src/common/utils/utils';
-import { EntityNotFoundError, Repository } from 'typeorm';
+import { EntityNotFoundError, QueryRunner, Repository } from 'typeorm';
 import { CreateAutoDto } from './dto/create-auto.dto';
 import { UpdateAutoDto } from './dto/update-auto.dto';
 
@@ -19,6 +21,8 @@ export class AutoService {
   constructor(
     @InjectRepository(Auto)
     private readonly autoRepository: Repository<Auto>,
+    @InjectRepository(AutoImage)
+    private readonly autoImageRepository: Repository<AutoImage>,
   ) {}
 
   async findAll(
@@ -63,30 +67,45 @@ export class AutoService {
   async create(
     createAutoDto: CreateAutoDto,
   ): Promise<{ message: string; newAuto: Auto }> {
-    const autoExists = await this.autoRepository.findOneBy({
-      brand: createAutoDto.brand,
-      model: createAutoDto.model,
-      year: createAutoDto.year,
-    });
+    const queryRunner =
+      this.autoRepository.manager.connection.createQueryRunner();
+    await queryRunner.startTransaction();
 
-    if (autoExists) {
-      throw new ConflictException(
-        `A auto with brand ${autoExists.brand}, model ${autoExists.model} and year ${autoExists.year} already exists.`,
+    try {
+      const autoExists = await this.checkIfAutoExists(createAutoDto);
+      if (autoExists) {
+        throw new ConflictException(
+          `A auto with brand ${autoExists.brand}, model ${autoExists.model} and year ${autoExists.year} already exists.`,
+        );
+      }
+
+      const { images, ...autoDetails } = createAutoDto;
+
+      // Crear el auto
+      const newAuto = await this.createAuto(autoDetails, queryRunner);
+
+      // Crear las imágenes
+      const newImages = await this.createImages(
+        images || [],
+        newAuto,
+        queryRunner,
       );
+
+      // Confirmar la transacción
+      await queryRunner.commitTransaction();
+
+      return {
+        message: '🚗 Auto created successfully',
+        newAuto: { ...newAuto, images: newImages } as Auto,
+      };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException(
+        `Failed to create auto: ${error.message}`,
+      );
+    } finally {
+      await queryRunner.release();
     }
-
-    const newAuto = this.autoRepository.create({
-      ...createAutoDto,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-
-    await this.autoRepository.save(newAuto);
-
-    return {
-      message: '🚗 Auto created successfully',
-      newAuto,
-    };
   }
 
   async update(
@@ -96,6 +115,7 @@ export class AutoService {
     const auto = await this.autoRepository.preload({
       id,
       ...updateAutoDto,
+      images: [],
       updatedAt: new Date(),
     });
 
@@ -129,5 +149,46 @@ export class AutoService {
       }
       throw error;
     }
+  }
+
+  async createImages(
+    images: string[],
+    newAuto: Auto,
+    queryRunner: QueryRunner,
+  ): Promise<Omit<AutoImage, 'auto'>[]> {
+    const imagesToSave = images.map((url) =>
+      this.autoImageRepository.create({
+        url,
+        auto: newAuto,
+      }),
+    );
+
+    await queryRunner.manager.save(imagesToSave);
+    const savedImages = imagesToSave.map((image) => {
+      const { auto: _, ...imageWithoutAuto } = image;
+      return imageWithoutAuto;
+    });
+
+    return savedImages as Omit<AutoImage, 'auto'>[];
+  }
+
+  async createAuto(
+    autoDetails: Omit<CreateAutoDto, 'images'>,
+    queryRunner: QueryRunner,
+  ): Promise<Auto> {
+    const newAuto = this.autoRepository.create({
+      ...autoDetails,
+    });
+
+    await queryRunner.manager.save(newAuto);
+    return newAuto;
+  }
+
+  async checkIfAutoExists(createAutoDto: CreateAutoDto): Promise<Auto | null> {
+    return await this.autoRepository.findOneBy({
+      brand: createAutoDto.brand,
+      model: createAutoDto.model,
+      year: createAutoDto.year,
+    });
   }
 }
