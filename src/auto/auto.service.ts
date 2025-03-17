@@ -66,7 +66,7 @@ export class AutoService {
 
   async create(
     createAutoDto: CreateAutoDto,
-  ): Promise<{ message: string; newAuto: Auto }> {
+  ): Promise<{ message: string; auto: Auto }> {
     const queryRunner =
       this.autoRepository.manager.connection.createQueryRunner();
     await queryRunner.startTransaction();
@@ -85,18 +85,22 @@ export class AutoService {
       const newAuto = await this.createAuto(autoDetails, queryRunner);
 
       // Crear las imágenes
-      const newImages = await this.createImages(
-        images || [],
-        newAuto,
-        queryRunner,
-      );
+      let newImages: AutoImage[] = [];
+      if (images && images.length > 0) {
+        newImages = await this.createImages(images, newAuto, queryRunner);
+      }
 
       // Confirmar la transacción
       await queryRunner.commitTransaction();
 
+      const imagesWithoutAuto = newImages.map((image) => {
+        const { auto: _, ...imageWithoutAuto } = image;
+        return imageWithoutAuto;
+      });
+
       return {
         message: '🚗 Auto created successfully',
-        newAuto: { ...newAuto, images: newImages } as Auto,
+        auto: { ...newAuto, images: imagesWithoutAuto } as Auto,
       };
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -111,24 +115,50 @@ export class AutoService {
   async update(
     id: string,
     updateAutoDto: UpdateAutoDto,
-  ): Promise<{ message: string; auto: Auto }> {
-    const auto = await this.autoRepository.preload({
-      id,
-      ...updateAutoDto,
-      images: [],
-      updatedAt: new Date(),
-    });
+  ): Promise<{ message: string; auto: any }> {
+    const queryRunner =
+      this.autoRepository.manager.connection.createQueryRunner();
+    await queryRunner.startTransaction();
 
-    if (!auto) {
-      throw new NotFoundException(`🚗 Auto with id ${id} not found`);
+    try {
+      const { images: newImages, ...newDetails } = updateAutoDto;
+
+      const oldAuto = await this.findOne(id);
+
+      // Actualizar las imagenes
+      if (newImages && newImages.length > 0) {
+        await this.deletePreviousImages(oldAuto, queryRunner);
+        const savedImages = await this.createImages(
+          newImages,
+          oldAuto,
+          queryRunner,
+        );
+        oldAuto.images = savedImages;
+      }
+
+      // Actualizar el auto
+      const newAuto = await this.updateAuto(oldAuto, newDetails, queryRunner);
+
+      // Confirmar la transacción
+      await queryRunner.commitTransaction();
+
+      const imagesWithoutAuto = newAuto.images.map((image) => {
+        const { auto: _, ...imageWithoutAuto } = image;
+        return imageWithoutAuto;
+      });
+
+      return {
+        message: '🚗 Auto updated successfully',
+        auto: { ...newAuto, images: imagesWithoutAuto } as Auto,
+      };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException(
+        `Failed to create auto: ${error.message}`,
+      );
+    } finally {
+      await queryRunner.release();
     }
-
-    const updatedAuto = await this.autoRepository.save(auto);
-
-    return {
-      message: '🚗 Auto updated successfully',
-      auto: updatedAuto,
-    };
   }
 
   async remove(id: string): Promise<{ message: string; auto: Auto }> {
@@ -155,7 +185,7 @@ export class AutoService {
     images: string[],
     newAuto: Auto,
     queryRunner: QueryRunner,
-  ): Promise<Omit<AutoImage, 'auto'>[]> {
+  ): Promise<AutoImage[]> {
     const imagesToSave = images.map((url) =>
       this.autoImageRepository.create({
         url,
@@ -164,12 +194,18 @@ export class AutoService {
     );
 
     await queryRunner.manager.save(imagesToSave);
-    const savedImages = imagesToSave.map((image) => {
-      const { auto: _, ...imageWithoutAuto } = image;
-      return imageWithoutAuto;
-    });
+    return imagesToSave;
+  }
 
-    return savedImages as Omit<AutoImage, 'auto'>[];
+  async deletePreviousImages(
+    auto: Auto,
+    queryRunner: QueryRunner,
+  ): Promise<void> {
+    if (!auto.images || auto.images.length === 0) {
+      return;
+    }
+
+    await queryRunner.manager.remove(auto.images);
   }
 
   async createAuto(
@@ -184,11 +220,27 @@ export class AutoService {
     return newAuto;
   }
 
+  async updateAuto(
+    oldAuto: Auto,
+    newDetails: Omit<UpdateAutoDto, 'images'>,
+    queryRunner: QueryRunner,
+  ): Promise<Auto> {
+    Object.assign(oldAuto, newDetails);
+    await queryRunner.manager.save(oldAuto);
+    return oldAuto as Auto;
+  }
+
   async checkIfAutoExists(createAutoDto: CreateAutoDto): Promise<Auto | null> {
     return await this.autoRepository.findOneBy({
       brand: createAutoDto.brand,
       model: createAutoDto.model,
       year: createAutoDto.year,
     });
+  }
+
+  static removeAutoReferenceFromImages(
+    images: AutoImage[],
+  ): Omit<AutoImage, 'auto'>[] {
+    return images.map(({ auto: _, ...imageWithoutAuto }) => imageWithoutAuto);
   }
 }
