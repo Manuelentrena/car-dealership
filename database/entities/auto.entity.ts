@@ -25,6 +25,7 @@ export class Auto extends BaseEntity {
 
   @OneToMany(() => AutoImage, (image) => image.auto, {
     cascade: true,
+    eager: true,
   })
   images?: AutoImage[];
 

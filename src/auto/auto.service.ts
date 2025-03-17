@@ -36,7 +36,6 @@ export class AutoService {
     const [data, total] = await this.autoRepository.findAndCount({
       skip: (page - 1) * limit,
       take: limit,
-      relations: ['images'],
     });
 
     return {
