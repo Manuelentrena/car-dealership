@@ -1,5 +1,6 @@
 import { generateSlug } from 'src/common/utils/utils';
-import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
+import { AutoImage } from './auto-image.entity';
 import { BaseEntity } from './base.entity';
 
 @Entity({ name: 'auto' })
@@ -21,6 +22,11 @@ export class Auto extends BaseEntity {
 
   @Column('text', { nullable: true, array: true, default: [] })
   features: string[];
+
+  @OneToMany(() => AutoImage, (image) => image.auto, {
+    cascade: true,
+  })
+  images?: AutoImage[];
 
   // Hook para generar el slug antes de insertar o actualizar
   @BeforeInsert()
