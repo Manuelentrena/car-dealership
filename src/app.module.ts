@@ -13,6 +13,7 @@ import { HealthModule } from './health/health.module';
 import { ModelModule } from './models/model.module';
 import { SeedModule } from './seed/seed.module';
 import { AutoModule } from './auto/auto.module';
+import { FilesModule } from './files/files.module';
 import typeormConfiguration from './common/config/typeorm.config';
 
 @Module({
@@ -57,6 +58,7 @@ import typeormConfiguration from './common/config/typeorm.config';
     ModelModule,
     HealthModule,
     AutoModule,
+    FilesModule,
   ],
   controllers: [],
   providers: [],
