@@ -20,11 +20,13 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
 RUN mkdir -p /var/www/app/logs
+RUN mkdir -p /var/www/app/uploads
 
 # Crear el usuario sin contraseña
 RUN adduser --disabled-password entrenadev
 RUN chown -R entrenadev:entrenadev /var/www/app
 RUN chown -R entrenadev:entrenadev /var/www/app/logs
+RUN chown -R entrenadev:entrenadev /var/www/app/uploads
 USER entrenadev
 
 EXPOSE ${PORT}
