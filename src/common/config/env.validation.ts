@@ -23,4 +23,8 @@ export const envValidationSchema = Joi.object({
 
   // API
   PORT: Joi.number().default(3000),
+
+  // Cloudflare
+  CLOUDFLARE_ACCOUNT_ID: Joi.string().required(),
+  CLOUDFLARE_API_TOKEN: Joi.string().required(),
 });

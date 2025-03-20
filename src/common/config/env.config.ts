@@ -27,5 +27,9 @@ export const EnvConfiguration = () => {
     api: {
       port: parseInt(process.env.PORT, 10) || 3000,
     },
+    cloudflare: {
+      accountId: process.env.CLOUDFLARE_ACCOUNT_ID || 'accountId',
+      apiToken: process.env.CLOUDFLARE_API_TOKEN || 'apiToken',
+    },
   };
 };
