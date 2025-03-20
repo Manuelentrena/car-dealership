@@ -16,12 +16,13 @@ RUN npm run build
 # Production image, copy all the files and run next
 FROM node:20-alpine AS runner
 WORKDIR /var/www/app
-USER node
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
 RUN mkdir -p /var/www/app/logs /var/www/app/uploads
 RUN chown -R node:node /var/www/app
+
+USER node
 
 EXPOSE ${PORT}
 
