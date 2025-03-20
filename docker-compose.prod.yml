@@ -25,6 +25,7 @@ services:
       - '${PORT}:${PORT}'
     volumes:
       - ./logs:/var/www/app/logs
+      - ./uploads:/var/www/app/uploads
     networks:
       - app-network
     depends_on:
