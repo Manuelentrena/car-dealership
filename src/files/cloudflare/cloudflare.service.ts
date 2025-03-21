@@ -3,7 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as FormData from 'form-data';
 import { lastValueFrom } from 'rxjs';
-import { IImageUploadService } from '../contract';
+import { fileResponse, IImageUploadService } from '../contract';
+import { adaptCloudflareResponse } from './cloudflare.adapter';
 
 @Injectable()
 export class CloudflareService implements IImageUploadService {
@@ -12,7 +13,7 @@ export class CloudflareService implements IImageUploadService {
     private configService: ConfigService,
   ) {}
 
-  async uploadImage(file: Express.Multer.File): Promise<any> {
+  async uploadImage(file: Express.Multer.File): Promise<fileResponse> {
     const formData = new FormData();
     formData.append('file', file.buffer, file.originalname);
 
@@ -29,8 +30,7 @@ export class CloudflareService implements IImageUploadService {
       const response = await lastValueFrom(
         this.httpService.post(url, formData, { headers }),
       );
-      console.log(response.data);
-      return response.data;
+      return adaptCloudflareResponse(response.data);
     } catch (error) {
       console.error(
         'Error uploading image:',
