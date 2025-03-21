@@ -171,6 +171,7 @@ export class AutoService {
     try {
       const deletedAuto = await this.findOne(id);
 
+      await this.deletePreviousImages(deletedAuto, queryRunner);
       await this.deleteAuto(deletedAuto, queryRunner);
 
       // Confirmar la transacción
