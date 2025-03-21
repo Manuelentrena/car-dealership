@@ -1,5 +1,11 @@
-import { Exclude } from 'class-transformer';
-import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { Exclude, Transform } from 'class-transformer';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateAutoDto {
   @IsString()
@@ -12,6 +18,7 @@ export class CreateAutoDto {
 
   @IsNumber()
   @IsNotEmpty()
+  @Transform(({ value }) => Number(value))
   readonly year: number;
 
   @Exclude()
@@ -22,6 +29,6 @@ export class CreateAutoDto {
   features: string[];
 
   @IsArray()
-  @IsString({ each: true })
-  images: string[];
+  @IsOptional()
+  images?: Express.Multer.File[];
 }

@@ -8,7 +8,11 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { MAX_IMAGES_BY_AUTO } from 'src/common/config/files.config';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { UUIDOrSlugPipe } from 'src/common/pipe/parse-slug.pipe';
 import { AutoService } from './auto.service';
@@ -30,7 +34,14 @@ export class AutoController {
   }
 
   @Post()
-  create(@Body() createAutoDto: CreateAutoDto) {
+  @UseInterceptors(
+    FileFieldsInterceptor([{ name: 'images', maxCount: MAX_IMAGES_BY_AUTO }]),
+  )
+  create(
+    @Body() createAutoDto: CreateAutoDto,
+    @UploadedFiles() files: { images: Express.Multer.File[] },
+  ) {
+    createAutoDto.images = files.images;
     return this.autoService.create(createAutoDto);
   }
 

@@ -12,6 +12,7 @@ import { PAGINATION_DEFAULTS } from 'src/common/config/pagination.config';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { PaginationResponse } from 'src/common/interface/pagination.interface';
 import { isSLUG } from 'src/common/utils/utils';
+import { FilesService } from 'src/files/files.service';
 import { QueryRunner, Repository } from 'typeorm';
 import { CreateAutoDto } from './dto/create-auto.dto';
 import { UpdateAutoDto } from './dto/update-auto.dto';
@@ -23,6 +24,7 @@ export class AutoService {
     private readonly autoRepository: Repository<Auto>,
     @InjectRepository(AutoImage)
     private readonly autoImageRepository: Repository<AutoImage>,
+    private readonly filesService: FilesService,
   ) {}
 
   async findAll(
@@ -114,7 +116,7 @@ export class AutoService {
 
   async update(
     id: string,
-    updateAutoDto: UpdateAutoDto,
+    updateAutoDto: any,
   ): Promise<{ message: string; auto: any }> {
     const queryRunner =
       this.autoRepository.manager.connection.createQueryRunner();
@@ -189,13 +191,25 @@ export class AutoService {
   }
 
   async createImages(
-    images: string[],
+    images: Express.Multer.File[],
     newAuto: Auto,
     queryRunner: QueryRunner,
   ): Promise<AutoImage[]> {
-    const imagesToSave = images.map((url) =>
+    // Save in the cloud
+    // const infoImagesFromProvider: fileResponse[] = [];
+    // for (const image of images) {
+    //   infoImagesFromProvider.push(await this.filesService.uploadFile(image));
+    // }
+
+    const infoImagesFromProvider = await Promise.all(
+      images.map((image) => this.filesService.uploadFile(image)),
+    );
+
+    // Save in the database
+    const imagesToSave = infoImagesFromProvider.map((infoImageFromProvider) =>
       this.autoImageRepository.create({
-        url,
+        id: infoImageFromProvider.id,
+        url: infoImageFromProvider.url,
         auto: newAuto,
       }),
     );

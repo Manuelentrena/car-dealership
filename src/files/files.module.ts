@@ -8,5 +8,6 @@ import { FilesService } from './files.service';
   imports: [HttpModule],
   controllers: [FilesController],
   providers: [FilesService, CloudflareService],
+  exports: [FilesService],
 })
 export class FilesModule {}
