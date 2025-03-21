@@ -1,4 +1,5 @@
 import { PartialType } from '@nestjs/mapped-types';
+import { Transform } from 'class-transformer';
 import {
   IsArray,
   IsNotEmpty,
@@ -22,6 +23,7 @@ export class UpdateAutoDto extends PartialType(CreateAutoDto) {
   @IsNumber()
   @IsNotEmpty()
   @IsOptional()
+  @Transform(({ value }) => Number(value))
   readonly year: number;
 
   @IsOptional()

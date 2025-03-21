@@ -46,10 +46,15 @@ export class AutoController {
   }
 
   @Patch(':id')
+  @UseInterceptors(
+    FileFieldsInterceptor([{ name: 'images', maxCount: MAX_IMAGES_BY_AUTO }]),
+  )
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateAutoDto: UpdateAutoDto,
+    @UploadedFiles() files: { images: Express.Multer.File[] },
   ) {
+    updateAutoDto.images = files.images;
     return this.autoService.update(id, updateAutoDto);
   }
 

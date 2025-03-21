@@ -116,8 +116,8 @@ export class AutoService {
 
   async update(
     id: string,
-    updateAutoDto: any,
-  ): Promise<{ message: string; auto: any }> {
+    updateAutoDto: UpdateAutoDto,
+  ): Promise<{ message: string; auto: Auto }> {
     const queryRunner =
       this.autoRepository.manager.connection.createQueryRunner();
     await queryRunner.startTransaction();
@@ -221,6 +221,12 @@ export class AutoService {
       return;
     }
 
+    // Delete in the cloud
+    await Promise.all(
+      auto.images.map((image) => this.filesService.deleteFile(image)),
+    );
+
+    // Delete in the database
     await queryRunner.manager.remove(auto.images);
   }
 
