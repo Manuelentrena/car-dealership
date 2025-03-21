@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { AutoImage } from 'database/entities/auto-image.entity';
 import * as FormData from 'form-data';
 import { lastValueFrom } from 'rxjs';
 import { fileResponse, IImageUploadService } from '../contract';
@@ -37,6 +38,27 @@ export class CloudflareService implements IImageUploadService {
         error.response?.data || error.message,
       );
       throw new Error('Error uploading image');
+    }
+  }
+
+  async deleteImage(file: AutoImage): Promise<boolean> {
+    const headers = {
+      Authorization: `Bearer ${this.configService.get('cloudflare.apiToken')}`,
+    };
+
+    const url = `https://api.cloudflare.com/client/v4/accounts/${this.configService.get(
+      'cloudflare.accountId',
+    )}/images/v1/${file.id}`;
+
+    try {
+      await lastValueFrom(this.httpService.delete(url, { headers }));
+      return true;
+    } catch (error) {
+      console.error(
+        'Error deleting image:',
+        error.response?.data || error.message,
+      );
+      throw new Error('Error deleting image');
     }
   }
 }
