@@ -196,11 +196,6 @@ export class AutoService {
     queryRunner: QueryRunner,
   ): Promise<AutoImage[]> {
     // Save in the cloud
-    // const infoImagesFromProvider: fileResponse[] = [];
-    // for (const image of images) {
-    //   infoImagesFromProvider.push(await this.filesService.uploadFile(image));
-    // }
-
     const infoImagesFromProvider = await Promise.all(
       images.map((image) => this.filesService.uploadFile(image)),
     );
