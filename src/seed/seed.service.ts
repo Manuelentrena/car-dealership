@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Model } from 'mongoose';
 import { Brand, BrandDocument } from 'src/brands/schema/brand.schema';
 import { Car, CarDocument } from 'src/cars/schema/car.schema';
@@ -8,7 +8,7 @@ import {
   ModelDocument,
   Model as ModelSchema,
 } from 'src/models/schema/model.schema';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Auto } from '../../database/entities/auto.entity';
 import { cars } from './data';
 
@@ -21,6 +21,7 @@ export class SeedService {
     private readonly modelModel: Model<ModelDocument>,
     @InjectRepository(Auto)
     private readonly autoRepository: Repository<Auto>,
+    @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
 
   async runSeed() {
@@ -72,6 +73,9 @@ export class SeedService {
   }
 
   async runSeedInPostgres() {
+    console.log('Running pending migrations...');
+    await this.dataSource.runMigrations();
+
     console.log('Deleting existing autos in PostgreSQL...');
     await this.autoRepository.delete({});
 
