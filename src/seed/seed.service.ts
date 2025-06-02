@@ -80,7 +80,8 @@ export class SeedService {
     await this.autoRepository.delete({});
 
     console.log('Inserting new autos in PostgreSQL...');
-    await this.autoRepository.save(cars);
+    const autos = cars.map((car) => this.autoRepository.create(car));
+    await this.autoRepository.save(autos);
 
     console.log('Seed data inserted successfully in PostgreSQL.');
   }
