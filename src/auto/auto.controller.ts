@@ -12,9 +12,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { MAX_IMAGES_BY_AUTO } from 'src/common/config/files.config';
+import {
+  MAX_IMAGES_BY_AUTO,
+  multerImageOptions,
+} from 'src/common/config/files.config';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { UUIDOrSlugPipe } from 'src/common/pipe/parse-slug.pipe';
+import { validateTypeImages } from 'src/common/pipe/parse-type-image.pipe';
 import { AutoService } from './auto.service';
 import { CreateAutoDto } from './dto/create-auto.dto';
 import { UpdateAutoDto } from './dto/update-auto.dto';
@@ -35,25 +39,33 @@ export class AutoController {
 
   @Post()
   @UseInterceptors(
-    FileFieldsInterceptor([{ name: 'images', maxCount: MAX_IMAGES_BY_AUTO }]),
+    FileFieldsInterceptor(
+      [{ name: 'images', maxCount: MAX_IMAGES_BY_AUTO }],
+      multerImageOptions,
+    ),
   )
   create(
     @Body() createAutoDto: CreateAutoDto,
-    @UploadedFiles() files: { images: Express.Multer.File[] },
+    @UploadedFiles() files: { images?: Express.Multer.File[] },
   ) {
+    validateTypeImages(files.images);
     createAutoDto.images = files.images;
     return this.autoService.create(createAutoDto);
   }
 
   @Patch(':id')
   @UseInterceptors(
-    FileFieldsInterceptor([{ name: 'images', maxCount: MAX_IMAGES_BY_AUTO }]),
+    FileFieldsInterceptor(
+      [{ name: 'images', maxCount: MAX_IMAGES_BY_AUTO }],
+      multerImageOptions,
+    ),
   )
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateAutoDto: UpdateAutoDto,
     @UploadedFiles() files: { images: Express.Multer.File[] },
   ) {
+    validateTypeImages(files.images);
     updateAutoDto.images = files.images;
     return this.autoService.update(id, updateAutoDto);
   }
