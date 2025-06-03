@@ -1,5 +1,8 @@
 import {
+  Body,
   Controller,
+  Get,
+  Param,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -18,12 +21,22 @@ export class FilesController {
   async uploadFile(
     @UploadedFile(typeImagePipe)
     file: Express.Multer.File,
+    @Body('isPublic') isPublicRaw: string,
   ) {
     try {
-      const result = await this.filesService.uploadFile(file);
+      const result = await this.filesService.uploadFile(
+        file,
+        isPublicRaw === 'true',
+      );
       return result;
     } catch (error) {
       return { message: 'Error uploading file', error: error.message };
     }
+  }
+
+  @Get(':imageId/url')
+  getSignedUrl(@Param('imageId') imageId: string) {
+    const url = this.filesService.generateSignedUrl(imageId);
+    return { url };
   }
 }
