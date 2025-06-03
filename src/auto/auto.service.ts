@@ -81,7 +81,7 @@ export class AutoService {
         );
       }
 
-      const { images, ...autoDetails } = createAutoDto;
+      const { images, isPublicImages, ...autoDetails } = createAutoDto;
 
       // Crear el auto
       const newAuto = await this.createAuto(autoDetails, queryRunner);
@@ -89,7 +89,12 @@ export class AutoService {
       // Crear las imágenes
       let newImages: AutoImage[] = [];
       if (images && images.length > 0) {
-        newImages = await this.createImages(images, newAuto, queryRunner);
+        newImages = await this.createImages(
+          images,
+          newAuto,
+          isPublicImages,
+          queryRunner,
+        );
       }
 
       // Confirmar la transacción
@@ -97,7 +102,12 @@ export class AutoService {
 
       const imagesWithoutAuto = newImages.map((image) => {
         const { auto: _, ...imageWithoutAuto } = image;
-        return imageWithoutAuto;
+
+        const imageUrl = image.isPublic
+          ? image.url
+          : this.filesService.generateSignedUrl(image.id);
+
+        return { ...imageWithoutAuto, url: imageUrl };
       });
 
       return {
@@ -123,7 +133,11 @@ export class AutoService {
     await queryRunner.startTransaction();
 
     try {
-      const { images: newImages, ...newDetails } = updateAutoDto;
+      const {
+        images: newImages,
+        isPublicImages,
+        ...newDetails
+      } = updateAutoDto;
 
       const oldAuto = await this.findOne(id);
 
@@ -133,6 +147,7 @@ export class AutoService {
         const savedImages = await this.createImages(
           newImages,
           oldAuto,
+          isPublicImages,
           queryRunner,
         );
         oldAuto.images = savedImages;
@@ -146,7 +161,12 @@ export class AutoService {
 
       const imagesWithoutAuto = newAuto.images.map((image) => {
         const { auto: _, ...imageWithoutAuto } = image;
-        return imageWithoutAuto;
+
+        const imageUrl = image.isPublic
+          ? image.url
+          : this.filesService.generateSignedUrl(image.id);
+
+        return { ...imageWithoutAuto, url: imageUrl };
       });
 
       return {
@@ -194,18 +214,22 @@ export class AutoService {
   async createImages(
     images: Express.Multer.File[],
     newAuto: Auto,
+    isPublicImages: boolean[] = [],
     queryRunner: QueryRunner,
   ): Promise<AutoImage[]> {
     // Save in the cloud
     const infoImagesFromProvider = await Promise.all(
-      images.map((image) => this.filesService.uploadFile(image)),
+      images.map((image, i) =>
+        this.filesService.uploadFile(image, isPublicImages[i] ?? false),
+      ),
     );
 
     // Save in the database
-    const imagesToSave = infoImagesFromProvider.map((infoImageFromProvider) =>
+    const imagesToSave = infoImagesFromProvider.map((info, i) =>
       this.autoImageRepository.create({
-        id: infoImageFromProvider.id,
-        url: infoImageFromProvider.url,
+        id: info.id,
+        url: info.url,
+        isPublic: isPublicImages[i] ?? false,
         auto: newAuto,
       }),
     );
