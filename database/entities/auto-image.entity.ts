@@ -7,6 +7,9 @@ export class AutoImage extends BaseEntity {
   @Column('text', { nullable: false })
   url: string;
 
+  @Column('boolean', { default: true })
+  isPublic: boolean;
+
   @ManyToOne(() => Auto, (auto) => auto.images, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'auto_id' })
   auto: Auto;
