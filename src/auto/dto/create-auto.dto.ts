@@ -1,6 +1,7 @@
 import { Exclude, Transform } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -31,4 +32,15 @@ export class CreateAutoDto {
   @IsArray()
   @IsOptional()
   images?: Express.Multer.File[];
+
+  @IsArray()
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) {
+      return value.map((v) => v === 'true');
+    }
+    return [value === 'true'];
+  })
+  @IsBoolean({ each: true })
+  isPublicImages?: boolean[];
 }
