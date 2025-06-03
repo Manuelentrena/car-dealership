@@ -17,20 +17,27 @@ export class CloudflareService implements IImageUploadService {
   async uploadImage(file: Express.Multer.File): Promise<fileResponse> {
     const formData = new FormData();
     formData.append('file', file.buffer, file.originalname);
+    console.log({ formData });
 
     const headers = {
       Authorization: `Bearer ${this.configService.get('cloudflare.apiToken')}`,
       ...formData.getHeaders(),
     };
 
+    console.log({ headers });
+
     const url = `https://api.cloudflare.com/client/v4/accounts/${this.configService.get(
       'cloudflare.accountId',
     )}/images/v1`;
+
+    console.log({ url });
 
     try {
       const response = await lastValueFrom(
         this.httpService.post(url, formData, { headers }),
       );
+
+      console.log({ response });
       return adaptCloudflareResponse(response.data);
     } catch (error) {
       console.error(
