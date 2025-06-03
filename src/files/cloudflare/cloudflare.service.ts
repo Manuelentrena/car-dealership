@@ -14,9 +14,13 @@ export class CloudflareService implements IImageUploadService {
     private configService: ConfigService,
   ) {}
 
-  async uploadImage(file: Express.Multer.File): Promise<fileResponse> {
+  async uploadImage(
+    file: Express.Multer.File,
+    isPublic: boolean,
+  ): Promise<fileResponse> {
     const formData = new FormData();
     formData.append('file', file.buffer, file.originalname);
+    formData.append('requireSignedURLs', isPublic ? 'false' : 'true');
 
     const headers = {
       Authorization: `Bearer ${this.configService.get('cloudflare.apiToken')}`,
