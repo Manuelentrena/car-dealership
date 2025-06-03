@@ -10,7 +10,6 @@ export class FilesService {
   async uploadFile(file: Express.Multer.File): Promise<fileResponse> {
     try {
       const result = await this.fileService.uploadImage(file);
-      console.log({ result });
       return result;
     } catch (error) {
       throw new Error(`Error uploading file: ${error.message}`);
