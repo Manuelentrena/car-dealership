@@ -30,6 +30,8 @@ export const EnvConfiguration = () => {
     cloudflare: {
       accountId: process.env.CLOUDFLARE_ACCOUNT_ID || 'accountId',
       apiToken: process.env.CLOUDFLARE_API_TOKEN || 'apiToken',
+      accountHash: process.env.CLOUDFLARE_ACCOUNT_HASH || 'accountHash',
+      signingToken: process.env.CLOUDFLARE_SIGNING_TOKEN || 'signingtoken',
     },
   };
 };
