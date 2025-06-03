@@ -1,7 +1,10 @@
 import { AutoImage } from 'database/entities/auto-image.entity';
 
 export interface IImageUploadService {
-  uploadImage(file: Express.Multer.File): Promise<fileResponse>;
+  uploadImage(
+    file: Express.Multer.File,
+    isPublic: boolean,
+  ): Promise<fileResponse>;
   deleteImage(file: AutoImage): Promise<boolean>;
 }
 
