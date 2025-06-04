@@ -16,6 +16,10 @@ export const envValidationSchema = Joi.object({
   DB_PASS: Joi.string().required(),
   DB_NAME: Joi.string().required(),
 
+  // Auth
+  JWT_SECRET: Joi.string().required(),
+  JWT_EXPIRATION_TIME: Joi.string().default('1h'),
+
   // PG Admin
   PGADMIN_EMAIL: Joi.string().optional(),
   PGADMIN_PASSWORD: Joi.string().optional(),

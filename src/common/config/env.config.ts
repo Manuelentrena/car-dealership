@@ -27,6 +27,10 @@ export const EnvConfiguration = () => {
     api: {
       port: parseInt(process.env.PORT, 10) || 3000,
     },
+    auth: {
+      jwtSecret: process.env.JWT_SECRET,
+      jwtExpirationTime: process.env.JWT_EXPIRATION_TIME || '1h',
+    },
     cloudflare: {
       accountId: process.env.CLOUDFLARE_ACCOUNT_ID || 'accountId',
       apiToken: process.env.CLOUDFLARE_API_TOKEN || 'apiToken',
