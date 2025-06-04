@@ -4,17 +4,18 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
+import { AuthModule } from './auth/auth.module';
+import { AutoModule } from './auto/auto.module';
 import { BrandsModule } from './brands/brands.module';
 import { CarsModule } from './cars/cars.module';
 import { CommonModule } from './common/common.module';
 import { EnvConfiguration } from './common/config/env.config';
 import { envValidationSchema } from './common/config/env.validation';
+import typeormConfiguration from './common/config/typeorm.config';
+import { FilesModule } from './files/files.module';
 import { HealthModule } from './health/health.module';
 import { ModelModule } from './models/model.module';
 import { SeedModule } from './seed/seed.module';
-import { AutoModule } from './auto/auto.module';
-import { FilesModule } from './files/files.module';
-import typeormConfiguration from './common/config/typeorm.config';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import typeormConfiguration from './common/config/typeorm.config';
     HealthModule,
     AutoModule,
     FilesModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],
