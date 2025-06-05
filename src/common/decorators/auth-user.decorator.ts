@@ -1,4 +1,8 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import {
+  createParamDecorator,
+  ExecutionContext,
+  InternalServerErrorException,
+} from '@nestjs/common';
 
 export const AuthUser = createParamDecorator(
   <T = any>(
@@ -7,6 +11,12 @@ export const AuthUser = createParamDecorator(
   ): T | T[keyof T] => {
     const request = ctx.switchToHttp().getRequest();
     const user = request.user;
+
+    if (!user) {
+      throw new InternalServerErrorException(
+        'No authenticated user found in request',
+      );
+    }
 
     return data ? user?.[data] : user;
   },
