@@ -1,4 +1,6 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { AuthUser } from 'src/common/decorators';
+import { Auth } from 'src/common/decorators/auth.decorator';
 import { AuthService } from './auth.service';
 import { LoginAuthDto, RegisterAuthDto } from './dto';
 
@@ -17,5 +19,10 @@ export class AuthController {
   @Post('activate/:token')
   activate(@Param('token') token: string) {
     return this.authService.activateAccount(token);
+  }
+  @Auth()
+  @Get('check-status')
+  checkStatus(@AuthUser('id') userId: string) {
+    return this.authService.checkStatus(userId);
   }
 }

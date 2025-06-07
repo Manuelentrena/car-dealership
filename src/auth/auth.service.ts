@@ -86,10 +86,6 @@ export class AuthService {
 
       const token = await this.generateToken(payload);
 
-      if (!token) {
-        throw new ConflictException('Error generating token');
-      }
-
       return {
         accessToken: token,
         ...this.buildUserResponse(user),
@@ -117,6 +113,28 @@ export class AuthService {
     return { message: 'Cuenta activada correctamente' };
   }
 
+  public async checkStatus(userId: string) {
+    try {
+      const foundUser = await this.userRepository.findOneBy({ id: userId });
+
+      const payload: JwtPayload = {
+        sub: foundUser.id,
+        email: foundUser.email,
+        roles: foundUser.roles,
+      };
+
+      const token = await this.generateToken(payload);
+
+      return {
+        accessToken: token,
+        ...this.buildUserResponse(foundUser),
+      };
+    } catch (error) {
+      console.error('Error during check-status:', error);
+      throw new ConflictException(error.message || 'Error during check-status');
+    }
+  }
+
   private async hashPassword(password: string): Promise<string> {
     const saltRounds = 10;
     return await bcrypt.hash(password, saltRounds);
@@ -130,7 +148,13 @@ export class AuthService {
   }
 
   private async generateToken(payload: JwtPayload): Promise<string> {
-    return this.jwtService.signAsync(payload);
+    const token = this.jwtService.signAsync(payload);
+
+    if (!token) {
+      throw new ConflictException('Error generating token');
+    }
+
+    return token;
   }
 
   private buildUserResponse(user: User): LoginUserResponse {
