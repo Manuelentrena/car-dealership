@@ -1,7 +1,15 @@
 import { generateSlug } from 'src/common/utils/utils';
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { AutoImage } from './auto-image.entity';
 import { BaseEntity } from './base.entity';
+import { User } from './user.entity';
 
 @Entity({ name: 'auto' })
 export class Auto extends BaseEntity {
@@ -29,7 +37,12 @@ export class Auto extends BaseEntity {
   })
   images?: AutoImage[];
 
-  // Hook para generar el slug antes de insertar o actualizar
+  @ManyToOne(() => User, (user) => user.autos, {
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
+  user: User;
+
   @BeforeInsert()
   @BeforeUpdate()
   generateSlug() {

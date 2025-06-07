@@ -1,4 +1,5 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
+import { Auto } from './auto.entity';
 import { BaseEntity } from './base.entity';
 
 @Entity({ name: 'user' })
@@ -24,6 +25,12 @@ export class User extends BaseEntity {
 
   @Column({ type: 'text', nullable: false, array: true, default: ['user'] })
   roles: string[];
+
+  @OneToMany(() => Auto, (auto) => auto.user, {
+    cascade: true,
+    eager: false,
+  })
+  autos: Auto[];
 
   @BeforeInsert()
   checkFiledsBeforeInsert() {
