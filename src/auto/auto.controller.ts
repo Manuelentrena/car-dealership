@@ -43,7 +43,7 @@ export class AutoController {
   @Auth(UserRole.User)
   @Get(':term')
   findOne(@Param('term', UUIDOrSlugPipe) term: string) {
-    return this.autoService.findOne(term);
+    return this.autoService.getAutoWithImagesForClient(term);
   }
 
   @Post()

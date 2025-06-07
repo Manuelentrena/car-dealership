@@ -55,7 +55,16 @@ export class AutoService {
     };
   }
 
-  async findOne(term: string): Promise<Auto> {
+  async getAutoWithImagesForClient(term: string): Promise<Partial<Auto>> {
+    const auto = await this.findAutoEntity(term);
+
+    return {
+      ...auto,
+      images: this.transformImages(auto.images) as AutoImage[],
+    };
+  }
+
+  async findAutoEntity(term: string): Promise<Auto> {
     let auto: Auto = null;
 
     if (isUUID(term)) {
@@ -145,7 +154,7 @@ export class AutoService {
         ...newDetails
       } = updateAutoDto;
 
-      const oldAuto = await this.findOne(id);
+      const oldAuto = await this.findAutoEntity(id);
 
       // Actualizar las imagenes
       if (newImages && newImages.length > 0) {
@@ -187,7 +196,7 @@ export class AutoService {
     await queryRunner.startTransaction();
 
     try {
-      const deletedAuto = await this.findOne(id);
+      const deletedAuto = await this.findAutoEntity(id);
 
       await this.deletePreviousImages(deletedAuto, queryRunner);
       await this.deleteAuto(deletedAuto, queryRunner);
