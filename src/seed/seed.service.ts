@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
+import { AutoImage } from 'database/entities/auto-image.entity';
+import { User } from 'database/entities/user.entity';
 import { Model } from 'mongoose';
 import { Brand, BrandDocument } from 'src/brands/schema/brand.schema';
 import { Car, CarDocument } from 'src/cars/schema/car.schema';
@@ -10,7 +13,8 @@ import {
 } from 'src/models/schema/model.schema';
 import { DataSource, Repository } from 'typeorm';
 import { Auto } from '../../database/entities/auto.entity';
-import { cars } from './data';
+import { carsSeed, usersSeed } from './data';
+import { defaultPrivateImage, defaultPublicImage } from './data/images.seed';
 
 @Injectable()
 export class SeedService {
@@ -21,6 +25,10 @@ export class SeedService {
     private readonly modelModel: Model<ModelDocument>,
     @InjectRepository(Auto)
     private readonly autoRepository: Repository<Auto>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(AutoImage)
+    private readonly autoImageRepository: Repository<AutoImage>,
     @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
 
@@ -30,7 +38,7 @@ export class SeedService {
     await this.brandModel.deleteMany({});
     await this.modelModel.deleteMany({});
     console.log('Existing data deleted.');
-    for (const car of cars) {
+    for (const car of carsSeed) {
       let brand = await this.brandModel.findOne({ name: car.brand });
 
       if (!brand) {
@@ -78,10 +86,38 @@ export class SeedService {
 
     console.log('Deleting existing autos in PostgreSQL...');
     await this.autoRepository.delete({});
+    await this.userRepository.delete({});
 
-    console.log('Inserting new autos in PostgreSQL...');
-    const autos = cars.map((car) => this.autoRepository.create(car));
-    await this.autoRepository.save(autos);
+    console.log('Inserting new users in PostgreSQL...');
+    const saltRounds = 10;
+
+    const usersToInsert = await Promise.all(
+      usersSeed.map(async (user) => {
+        const hashedPassword = await bcrypt.hash(user.password, saltRounds);
+        return this.userRepository.create({
+          ...user,
+          password: hashedPassword,
+        });
+      }),
+    );
+
+    await this.userRepository.save(usersToInsert);
+
+    console.log('Inserting new cars in PostgreSQL...');
+    const carsToInsert = carsSeed.map((car) => {
+      const user =
+        usersToInsert[Math.floor(Math.random() * usersToInsert.length)];
+      return this.autoRepository.create({
+        ...car,
+        user,
+        images: [
+          this.autoImageRepository.create({ ...defaultPublicImage }),
+          this.autoImageRepository.create({ ...defaultPrivateImage }),
+        ],
+      });
+    });
+
+    await this.autoRepository.save(carsToInsert);
 
     console.log('Seed data inserted successfully in PostgreSQL.');
   }
