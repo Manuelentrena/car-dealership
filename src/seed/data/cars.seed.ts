@@ -1,4 +1,4 @@
-export const cars = [
+export const carsSeed = [
   { brand: 'Seat', model: 'Ibiza', year: 2021 },
   { brand: 'Seat', model: 'Leon', year: 2021 },
   { brand: 'Seat', model: 'Toledo', year: 2021 },
