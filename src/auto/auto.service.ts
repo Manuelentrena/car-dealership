@@ -10,6 +10,7 @@ import { AutoImage } from 'database/entities/auto-image.entity';
 import { Auto } from 'database/entities/auto.entity';
 import { PAGINATION_DEFAULTS } from 'src/common/config/pagination.config';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { AuthUser } from 'src/common/interface/auth-user.interface';
 import { PaginationResponse } from 'src/common/interface/pagination.interface';
 import { isSLUG } from 'src/common/utils/utils';
 import { FilesService } from 'src/files/files.service';
@@ -29,6 +30,7 @@ export class AutoService {
 
   async findAll(
     paginationDto: PaginationDto,
+    user: AuthUser,
   ): Promise<PaginationResponse<Auto>> {
     const {
       page = PAGINATION_DEFAULTS.page,
@@ -36,12 +38,17 @@ export class AutoService {
     } = paginationDto;
 
     const [data, total] = await this.autoRepository.findAndCount({
+      where: { user: { id: user.id } },
       skip: (page - 1) * limit,
       take: limit,
+      relations: ['images'],
     });
 
     return {
-      data,
+      data: data.map((auto) => ({
+        ...auto,
+        images: this.transformImages(auto.images),
+      })) as unknown as Auto[],
       total,
       page,
       lastPage: Math.ceil(total / limit),
@@ -52,22 +59,32 @@ export class AutoService {
     let auto: Auto = null;
 
     if (isUUID(term)) {
-      auto = await this.autoRepository.findOneBy({ id: term });
+      auto = await this.autoRepository.findOne({
+        where: { id: term },
+        relations: ['images'],
+      });
     }
 
     if (!auto && isSLUG(term)) {
-      auto = await this.autoRepository.findOneBy({ slug: term });
+      auto = await this.autoRepository.findOne({
+        where: { slug: term },
+        relations: ['images'],
+      });
     }
 
     if (!auto) {
       throw new NotFoundException(`🚗 Auto with term ${term} not found`);
     }
 
-    return auto;
+    return {
+      ...auto,
+      images: this.transformImages(auto.images),
+    } as Auto;
   }
 
   async create(
     createAutoDto: CreateAutoDto,
+    user: AuthUser,
   ): Promise<{ message: string; auto: Auto }> {
     const queryRunner =
       this.autoRepository.manager.connection.createQueryRunner();
@@ -84,7 +101,7 @@ export class AutoService {
       const { images, isPublicImages, ...autoDetails } = createAutoDto;
 
       // Crear el auto
-      const newAuto = await this.createAuto(autoDetails, queryRunner);
+      const newAuto = await this.createAuto(autoDetails, user, queryRunner);
 
       // Crear las imágenes
       let newImages: AutoImage[] = [];
@@ -100,15 +117,7 @@ export class AutoService {
       // Confirmar la transacción
       await queryRunner.commitTransaction();
 
-      const imagesWithoutAuto = newImages.map((image) => {
-        const { auto: _, ...imageWithoutAuto } = image;
-
-        const imageUrl = image.isPublic
-          ? image.url
-          : this.filesService.generateSignedUrl(image.id);
-
-        return { ...imageWithoutAuto, url: imageUrl };
-      });
+      const imagesWithoutAuto = this.transformImages(newImages);
 
       return {
         message: '🚗 Auto created successfully',
@@ -159,15 +168,7 @@ export class AutoService {
       // Confirmar la transacción
       await queryRunner.commitTransaction();
 
-      const imagesWithoutAuto = newAuto.images.map((image) => {
-        const { auto: _, ...imageWithoutAuto } = image;
-
-        const imageUrl = image.isPublic
-          ? image.url
-          : this.filesService.generateSignedUrl(image.id);
-
-        return { ...imageWithoutAuto, url: imageUrl };
-      });
+      const imagesWithoutAuto = this.transformImages(newAuto.images);
 
       return {
         message: '🚗 Auto updated successfully',
@@ -257,10 +258,12 @@ export class AutoService {
 
   async createAuto(
     autoDetails: Omit<CreateAutoDto, 'images'>,
+    user: AuthUser,
     queryRunner: QueryRunner,
   ): Promise<Auto> {
     const newAuto = this.autoRepository.create({
       ...autoDetails,
+      user,
     });
 
     await queryRunner.manager.save(newAuto);
@@ -286,6 +289,18 @@ export class AutoService {
       brand: createAutoDto.brand,
       model: createAutoDto.model,
       year: createAutoDto.year,
+    });
+  }
+
+  private transformImages(images: AutoImage[]): Partial<AutoImage>[] {
+    return images.map((image) => {
+      const imageUrl = image.isPublic
+        ? image.url
+        : this.filesService.generateSignedUrl(image.id);
+
+      const { auto: _, ...imageWithoutAuto } = image;
+
+      return { ...imageWithoutAuto, url: imageUrl };
     });
   }
 }
