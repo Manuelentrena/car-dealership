@@ -76,10 +76,7 @@ export class AutoService {
       throw new NotFoundException(`🚗 Auto with term ${term} not found`);
     }
 
-    return {
-      ...auto,
-      images: this.transformImages(auto.images),
-    } as Auto;
+    return auto;
   }
 
   async create(
