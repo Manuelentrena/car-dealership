@@ -1,33 +1,30 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { Transform } from 'class-transformer';
-import {
-  IsArray,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { CreateAutoDto } from './create-auto.dto';
 
 export class UpdateAutoDto extends PartialType(CreateAutoDto) {
-  @IsString()
-  @IsNotEmpty()
-  @IsOptional()
-  readonly brand: string;
+  @ApiPropertyOptional({
+    example: 'Ford',
+    description: 'Updated brand of the car',
+  })
+  brand?: string;
 
-  @IsString()
-  @IsNotEmpty()
-  @IsOptional()
-  readonly model: string;
+  @ApiPropertyOptional({
+    example: 'Focus',
+    description: 'Updated model of the car',
+  })
+  model?: string;
 
-  @IsNumber()
-  @IsNotEmpty()
-  @IsOptional()
-  @Transform(({ value }) => Number(value))
-  readonly year: number;
+  @ApiPropertyOptional({
+    example: 2021,
+    description: 'Updated manufacturing year',
+  })
+  year?: number;
 
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
+  @ApiPropertyOptional({
+    type: [String],
+    example: ['GPS', 'Sunroof'],
+    description: 'Updated list of features',
+  })
   features?: string[];
 }
